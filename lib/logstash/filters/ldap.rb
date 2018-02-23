@@ -2,12 +2,15 @@
 
 require "logstash/filters/base"
 require "logstash/namespace"
+require 'digest/md5'
 
 class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config_name "ldap"
 
-   config :uidNumber, :validate => :string, :required => true
+   config :identifier_value, :validate => :string, :required => true
+   config :identifier_key, :validate => :string, :required => false, :default => "uid"
+   config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
 
    config :host, :validate => :string, :required => true
 
@@ -41,32 +44,32 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    public
    def filter(event)
 
-     uid2resolve = event.sprintf(@uidNumber)
+     identifier_hash = hashIdentifier(@host, @port, @identifier_key, @identifier_value)
 
      exitstatus = @SUCCESS
 
      cached = false
      if @useCache
-         cached = cached?(uid2resolve)
+         cached = cached?(identifier_hash)
      end
 
      if cached
          login, user = cached
      else
-         @logger.info("prompt LDAP for #{uid2resolve} informations")
+         @logger.info("prompt LDAP for #{identifier_hash} informations")
          if use_ssl
              conn = LDAP::SSLConn.new(host=@host, port=@ldaps_port)
          else
              conn = LDAP::Conn.new(host=@host, port=@ldap_port)
          end
 
-         res = ldapsearch(conn, uid2resolve)
+         res = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
          user = res['user']
          login = res['login']
          exitstatus = res['status']
          errmsg = res['err']
 
-         cacheUID(uid2resolve, login, user)
+         cacheUID(identifier_hash, login, user)
      end
 
      event.set("user", user)
@@ -86,6 +89,14 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
    private
 
+   def hashIdentifier(host, port, identifier_key, identifier_value)
+     md5 = Digest::MD5.new
+     md5.update(host)
+     md5.update(port.to_s)
+     md5.update(identifier_key)
+     md5.update(identifier_value)
+     return md5.hexdigest
+  end
 
    def cached?(uidNumber)
      cached = @cache.fetch(uidNumber, false)
@@ -99,7 +110,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      @cache[uidNumber] = [login, user, Time.now]
    end
 
-   def ldapsearch(conn, uidNumber)
+   def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
      ret = { 'login' => @DEFAULT, 'user'  => @DEFAULT, 'status' => @SUCCESS, 'err' => "" }
      gid = 0
 
@@ -115,7 +126,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      scope = LDAP::LDAP_SCOPE_SUBTREE
 
      begin
-         conn.search(@userdn, scope, "(& (objectclass=posixAccount) (uid=#{uidNumber}))", @userattrs) { |entry|
+         conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @userattrs) { |entry|
 
              hashEntry = {}
              for k in entry.get_attributes
