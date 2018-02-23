@@ -111,7 +111,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
          conn.bind(username, password)
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
-         ret['err'] = err
+         ret['err'] = err.message
          exitstatus  = @FAIL_CONN
          return ret, exitstatus
      end
@@ -130,7 +130,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
          }
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
-         ret['err'] = err
+         ret['err'] = err.message
          exitstatus  = @FAIL_FETCH
          return ret, exitstatus
      end
