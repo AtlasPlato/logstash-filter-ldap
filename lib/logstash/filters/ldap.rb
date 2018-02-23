@@ -120,13 +120,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
      begin
          conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributs) { |entry|
-
              hashEntry = {}
              for k in entry.get_attributes
                  ret[k] = entry.vals(k).join(" ")
              end
-
-              match = 1
          }
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
