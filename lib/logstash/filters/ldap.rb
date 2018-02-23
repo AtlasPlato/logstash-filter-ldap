@@ -32,7 +32,6 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    def register
      require 'ldap'
      @cache = {}
-     @DEFAULT = "Unknown"
      @SUCCESS = "LDAP_OK"
      @FAILURE = "LDAP_ERR"
      @UNKNOWN = "LDAP_UNK"
@@ -105,7 +104,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    end
 
    def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
-     ret = { 'status' => @SUCCESS, 'err' => "" }
+     ret = { 'status' => @SUCCESS }
 
      begin
          conn.bind(username, password)
@@ -135,10 +134,19 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
          return ret
      end
 
-     #if ret['user'] == @DEFAULT
-    #     ret['status'] = "#{@UNKNOWN}_USER"
-    #     return ret
-    # end
+     suceed = false
+
+     ret.each{|key, value|
+       if @attributs.include?(key)
+         suceed = true
+         break
+      end
+     }
+
+     if !suceed
+         ret['status'] = "#{@UNKNOWN}_USER"
+         return ret
+     end
 
      return ret
    end
