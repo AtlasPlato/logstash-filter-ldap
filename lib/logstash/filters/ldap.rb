@@ -4,6 +4,58 @@ require "logstash/filters/base"
 require "logstash/namespace"
 require 'digest/md5'
 
+
+class BufferDAO
+
+  public
+  def cached?(identifier)
+    raise('Not implemented')
+  end
+
+  public
+  def cache(identifier, hash)
+    raise('Not implemented')
+  end
+
+  public
+  def get(identifier)
+    raise('Not implemented')
+  end
+
+end
+
+
+class RamBuffer < BufferDAO
+
+  public
+  def initialize(cache_interval)
+    @cache_interval = cache_interval
+    @cache = {}
+  end
+
+  public
+  def cached?(identifier)
+    cached = @cache.fetch(identifier, false)
+    if cached and Time.now - cached[0] <= @cache_interval
+      return true
+    end
+    return false
+  end
+
+  public
+  def cache(identifier, hash)
+    @cache[identifier] = [Time.now, hash]
+  end
+
+  public
+  def get(identifier)
+    cache_tuple = @cache.fetch(identifier)
+    return cache_tuple[1]
+  end
+
+end
+
+
 class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config_name "ldap"
@@ -24,14 +76,15 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config :userdn, :validate => :string, :required => true
 
-  config :use_cache, :validate => :boolean, :required => false, :default => false
+  config :use_cache, :validate => :boolean, :required => false, :default => true
   config :cache_interval, :validate => :number, :required => false, :default => 300
 
-  
+
   public
   def register
     require 'ldap'
-    @cache = {}
+
+    @Buffer = RamBuffer.new(@cache_interval)
 
     @SUCCESS = "LDAP_OK"
     @FAIL_CONN = "LDAP_ERR_CONN"
@@ -46,11 +99,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     cached = false
     if @use_cache
-      cached = cached?(identifier_hash)
+      cached = @Buffer.cached?(identifier_hash)
     end
 
     if cached
-      login, user = cached
+      res = @Buffer.get(identifier_hash)
     else
       @logger.info("prompt LDAP for #{identifier_hash} informations")
       if use_ssl
@@ -61,11 +114,12 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
       res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
 
-      res.each{|key, value|
-        event.set(key, value)
-      }
-      #cacheUID(identifier_hash, login, user)
+      @Buffer.cache(identifier_hash, res)
     end
+
+    res.each{|key, value|
+      event.set(key, value)
+    }
 
     if !exitstatus.nil? && exitstatus != @SUCCESS
       if event.get("tags")
@@ -87,23 +141,6 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     md5.update(identifier_value)
     return md5.hexdigest
   end
-
-
-  private
-  def cached?(uidNumber)
-    cached = @cache.fetch(uidNumber, false)
-    if cached and Time.now - cached[2] <= @cache_interval
-      return cached[0], cached[1]
-    end
-    return false
-  end
-
-
-  private
-  def cacheUID(uidNumber, login, user)
-    @cache[uidNumber] = [login, user, Time.now]
-  end
-
 
   private
   def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
