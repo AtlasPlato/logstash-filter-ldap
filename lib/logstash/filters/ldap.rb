@@ -32,17 +32,17 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    def register
      require 'ldap'
      @cache = {}
+
      @SUCCESS = "LDAP_OK"
-     @FAILURE = "LDAP_ERR"
-     @UNKNOWN = "LDAP_UNK"
+     @FAIL_CONN = "LDAP_ERR_CONN"
+     @FAIL_FETCH = "LDAP_ERR_FETCH"
+     @UNKNOWN_USER = "LDAP_UNK_USER"
    end
 
    public
    def filter(event)
 
      identifier_hash = hashIdentifier(@host, @port, @identifier_key, @identifier_value)
-
-     exitstatus = @SUCCESS
 
      cached = false
      if @use_cache
@@ -59,16 +59,15 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
              conn = LDAP::Conn.new(host=@host, port=@ldap_port)
          end
 
-         res = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
+         res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
+
          res.each{|key, value|
            event.set(key, value)
          }
-         exitstatus = res['status']
-
          #cacheUID(identifier_hash, login, user)
      end
 
-     if exitstatus != @SUCCESS
+     if !exitstatus.nil? && exitstatus != @SUCCESS
        if event.get("tags")
            event.set("tags", event.get("tags") << exitstatus)
        else
@@ -104,15 +103,17 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    end
 
    def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
-     ret = { 'status' => @SUCCESS }
+
+     exitstatus = @SUCCESS
+     ret = {}
 
      begin
          conn.bind(username, password)
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
          ret['err'] = err
-         ret['status']  = @FAILURE
-         return ret
+         exitstatus  = @FAIL_CONN
+         return ret, exitstatus
      end
 
      scope = LDAP::LDAP_SCOPE_SUBTREE
@@ -130,8 +131,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
          ret['err'] = err
-         ret['status']  = @FAILURE
-         return ret
+         exitstatus  = @FAIL_FETCH
+         return ret, exitstatus
      end
 
      suceed = false
@@ -144,11 +145,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      }
 
      if !suceed
-         ret['status'] = "#{@UNKNOWN}_USER"
-         return ret
+         exitstatus = "#{@UNKNOWN_USER}"
+         return ret, exitstatus
      end
 
-     return ret
+     return ret, exitstatus
    end
 
 end
