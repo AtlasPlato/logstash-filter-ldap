@@ -12,8 +12,9 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    config :identifier_key, :validate => :string, :required => false, :default => "uid"
    config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
 
-   config :host, :validate => :string, :required => true
+   config :attributs, :validate => :array, :required => false, :default => ['givenName', 'sn']
 
+   config :host, :validate => :string, :required => true
    config :ldap_port, :validate => :number, :required => false, :default => 389
    config :ldaps_port, :validate => :number, :required => false, :default => 636
    config :use_ssl, :validate => :boolean, :required => false, :default => false
@@ -22,9 +23,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    config :password, :validate => :string, :required => false
 
    config :userdn, :validate => :string, :required => true
-   config :userattrs, :validate => :array, :required => false, :default => ['givenName', 'sn']
 
-   config :useCache, :validate => :boolean, :required => false, :default => false
+   config :use_cache, :validate => :boolean, :required => false, :default => false
    config :cache_interval, :validate => :number, :required => false, :default => 300
 
 
@@ -46,7 +46,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      exitstatus = @SUCCESS
 
      cached = false
-     if @useCache
+     if @use_cache
          cached = cached?(identifier_hash)
      end
 
@@ -119,7 +119,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
      scope = LDAP::LDAP_SCOPE_SUBTREE
 
      begin
-         conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @userattrs) { |entry|
+         conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributs) { |entry|
 
              hashEntry = {}
              for k in entry.get_attributes
