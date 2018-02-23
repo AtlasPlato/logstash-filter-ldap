@@ -16,18 +16,15 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
    config :ldap_port, :validate => :number, :required => false, :default => 389
    config :ldaps_port, :validate => :number, :required => false, :default => 636
-
    config :use_ssl, :validate => :boolean, :required => false, :default => false
 
    config :username, :validate => :string, :required => false
-
    config :password, :validate => :string, :required => false
 
    config :userdn, :validate => :string, :required => true
-   config :userattrs, :validate => :array, :required => false,  :default => ['uid', 'gidNumber', 'givenName', 'sn']
+   config :userattrs, :validate => :array, :required => false, :default => ['givenName', 'sn']
 
-   config :useCache, :validate => :boolean, :required => false, :default => true
-
+   config :useCache, :validate => :boolean, :required => false, :default => false
    config :cache_interval, :validate => :number, :required => false, :default => 300
 
 
@@ -64,16 +61,13 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
          end
 
          res = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
-         user = res['user']
-         login = res['login']
+         res.each{|key, value|
+           event.set(key, value)
+         }
          exitstatus = res['status']
-         errmsg = res['err']
 
-         cacheUID(identifier_hash, login, user)
+         #cacheUID(identifier_hash, login, user)
      end
-
-     event.set("user", user)
-     event.set("login", login)
 
      if exitstatus != @SUCCESS
        if event.get("tags")
@@ -111,8 +105,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
    end
 
    def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
-     ret = { 'login' => @DEFAULT, 'user'  => @DEFAULT, 'status' => @SUCCESS, 'err' => "" }
-     gid = 0
+     ret = { 'status' => @SUCCESS, 'err' => "" }
 
      begin
          conn.bind(username, password)
@@ -130,14 +123,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
              hashEntry = {}
              for k in entry.get_attributes
-                 hashEntry[k] = entry.vals(k).join(" ")
+                 ret[k] = entry.vals(k).join(" ")
              end
 
-             ret['user']  = "#{hashEntry.fetch("givenName", "")} #{hashEntry.fetch("sn", @DEFAULT)}".strip
-             ret['login'] = "#{hashEntry.fetch("uid")}"
-
-             gid = hashEntry.fetch("gidNumber", 0)
-             match = 1
+              match = 1
          }
      rescue LDAP::Error => err
          @logger.error("Error: #{err.message}")
@@ -146,10 +135,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
          return ret
      end
 
-     if ret['user'] == @DEFAULT
-         ret['status'] = "#{@UNKNOWN}_USER"
-         return ret
-     end
+     #if ret['user'] == @DEFAULT
+    #     ret['status'] = "#{@UNKNOWN}_USER"
+    #     return ret
+    # end
 
      return ret
    end
