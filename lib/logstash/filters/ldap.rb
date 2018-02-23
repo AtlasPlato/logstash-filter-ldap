@@ -2,6 +2,7 @@
 
 require "logstash/filters/base"
 require "logstash/namespace"
+
 require 'digest/md5'
 
 
@@ -28,8 +29,10 @@ end
 class RamBuffer < BufferDAO
 
   public
-  def initialize(cache_interval)
+  def initialize(cache_interval, buffer_size_limit)
     @cache_interval = cache_interval
+    @buffer_size_limit = buffer_size_limit
+    @buffer_size = 0
     @cache = {}
   end
 
@@ -44,7 +47,12 @@ class RamBuffer < BufferDAO
 
   public
   def cache(identifier, hash)
-    @cache[identifier] = [Time.now, hash]
+    if @buffer_size < @buffer_size_limit
+      @cache[identifier] = [Time.now, hash]
+      @buffer_size += 1
+    elsif @cache.fetch(identifier, false)
+      @cache[identifier] = [Time.now, hash]
+    end
   end
 
   public
@@ -78,13 +86,14 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config :use_cache, :validate => :boolean, :required => false, :default => true
   config :cache_interval, :validate => :number, :required => false, :default => 300
+  config :buffer_size_limit, :validate => :number, :required => false, :default => 20000
 
 
   public
   def register
     require 'ldap'
 
-    @Buffer = RamBuffer.new(@cache_interval)
+    @Buffer = RamBuffer.new(@cache_interval, @buffer_size_limit)
 
     @SUCCESS = "LDAP_OK"
     @FAIL_CONN = "LDAP_ERR_CONN"
