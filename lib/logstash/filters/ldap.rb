@@ -48,7 +48,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   public
   def filter(event)
 
-    identifier_hash = hashIdentifier(@host, @port, @identifier_key, @identifier_value)
+    identifier_hash = hashIdentifier(@identifier_value)
 
     cached = false
     if @use_cache
@@ -86,11 +86,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   end
 
   private
-  def hashIdentifier(host, port, identifier_key, identifier_value)
+  def hashIdentifier(identifier_value)
     md5 = Digest::MD5.new
-    md5.update(host)
-    md5.update(port.to_s)
-    md5.update(identifier_key)
     md5.update(identifier_value)
     return md5.hexdigest
   end
