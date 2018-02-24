@@ -28,6 +28,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config :userdn, :validate => :string, :required => true
 
+  config :buffer_type, :validate => :string, :required => false, :default => "memory"
   config :use_cache, :validate => :boolean, :required => false, :default => true
   config :cache_interval, :validate => :number, :required => false, :default => 300
   config :buffer_size_limit, :validate => :number, :required => false, :default => 20000
@@ -37,17 +38,26 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   def register
     require 'ldap'
 
-    @Buffer = RamBuffer.new(@cache_interval, @buffer_size_limit)
-
     @SUCCESS = "LDAP_OK"
     @FAIL_CONN = "LDAP_ERR_CONN"
     @FAIL_FETCH = "LDAP_ERR_FETCH"
     @UNKNOWN_USER = "LDAP_UNK_USER"
+    @BAD_BUFFER_TYPE = "LDAP_BAD_BUFF"
+
+    if @use_cache
+      if @buffer_type == "memory"
+        @logger.info("Memory cache was selected")
+        @Buffer = RamBuffer.new(@cache_interval, @buffer_size_limit)
+      else
+        @logger.warn("Unknown cache type: #{@buffer_type}")
+        @logger.warn("Cache utilisation will be disable")
+        @use_cache = false
+      end
+    end
   end
 
   public
   def filter(event)
-
     identifier_hash = hashIdentifier(@identifier_value)
 
     cached = false
@@ -67,7 +77,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
       res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
 
-      @Buffer.cache(identifier_hash, res)
+      if @use_cache
+        @Buffer.cache(identifier_hash, res)
+      end
+
     end
 
     res.each{|key, value|
