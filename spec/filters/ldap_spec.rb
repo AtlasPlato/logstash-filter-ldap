@@ -38,6 +38,17 @@ describe LogStash::Filters::Ldap do
       expect(subject.get("givenName")).to eq("VALENTIN")
       expect(subject.get("sn")).to eq("BOURDIER")
     end
+
+    sample("test" => "test2" ) do
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
+    end
   end
 
 
@@ -72,4 +83,33 @@ describe LogStash::Filters::Ldap do
       expect(subject.get("dominolanguage")).to eq("FR")
     end
   end
+
+
+  describe "check bad authentification credentials" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "example.org"
+          ldap_port => "#{@ldap_port}"
+          username => "test"
+          password => "test"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('err')
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('givenName')
+      expect(subject).not_to include('sn')
+
+      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("err")).to eq("Can't contact LDAP server")
+    end
+  end
+
 end
