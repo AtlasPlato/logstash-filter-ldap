@@ -81,6 +81,34 @@ describe LogStash::Filters::Ldap do
     end
   end
 
+  describe "check with false ssl settings" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          use_ssl => true
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('err')
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('givenName')
+      expect(subject).not_to include('sn')
+
+      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("err")).to eq("Can't contact LDAP server")
+    end
+  end
+
 
   describe "check simple search with custom identifier" do
     let(:config) do <<-CONFIG
