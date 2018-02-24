@@ -4,124 +4,39 @@ require "logstash/filters/ldap"
 
 describe LogStash::Filters::Ldap do
 
-  describe "check bind error" do
+  before(:each) do
+    @ldap_host=ENV["ldap_host"]
+    @ldap_port=ENV["ldap_port"]
+    @ldap_username=ENV["ldap_username"]
+    @ldap_password=ENV["ldap_password"]
+    @ldap_userdn=ENV["ldap_userdn"]
+  end
+
+
+  describe "check simple search" do
     let(:config) do <<-CONFIG
       filter {
-        LDAPresolve {
-          host    => "none.pasteur.fr"
-          userdn  => "ou=utilisateurs,dc=pasteur,dc=fr"
-          groupdn => "ou=entites,ou=groupes,dc=pasteur,dc=fr"
-          uidNumber     => 1234
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
         }
       }
-    CONFIG
+      CONFIG
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('tags')
-      expect(subject["tags"]).to eq(["LDAP_ERR"])
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
 
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
     end
-  end # bind test
+  end
 
-#  describe "unknown uidNumber" do
-#    let(:config) do <<-CONFIG
-#      filter {
-#        LDAPresolve {
-#          host    => "ldap.pasteur.fr"
-#          userdn  => "ou=utilisateurs,dc=pasteur,dc=fr"
-#          groupdn => "ou=entites,ou=groupes,dc=pasteur,dc=fr"
-#          uidNumber     => 1234567890
-#        }
-#      }
-#    CONFIG
-#    end
-#
-#    sample("test" => "test" ) do
-#      expect(subject).to include('user')
-#      expect(subject["user"]).to eq('Unknown')
-#      expect(subject).to include('group')
-#      expect(subject["group"]).to eq('Unknown')
-#      expect(subject).to include('tags')
-#      expect(subject["tags"]).to eq(["LDAP_UNK_USER"])
-#
-#    end
-#  end # end unknow uid
-#
-#
-#  describe "uidNumber with no associated group" do
-#    let(:config) do <<-CONFIG
-#      filter {
-#        LDAPresolve {
-#          host    => "ldap.pasteur.fr"
-#          userdn  => "ou=utilisateurs,dc=pasteur,dc=fr"
-#          groupdn => "ou=entites,ou=groupes,dc=pasteur,dc=fr"
-#          uidNumber     => 23865
-#        }
-#      }
-#    CONFIG
-#    end
-#
-#    sample("test" => "test") do
-#      expect(subject).to include('user')
-#      expect(subject["user"]).to eq('biomaj')
-#      expect(subject).to include('group')
-#      expect(subject["group"]).to eq('biomaj')
-#      expect(subject).to include('tags')
-#      expect(subject["tags"]).to eq(["LDAP_UNK_GROUP"])
-#
-#    end
-#  end #end no group name user
-#
-#  describe "LDAP test" do
-#    let(:config) do <<-CONFIG
-#      filter {
-#        LDAPresolve {
-#          host    => "ldap.pasteur.fr"
-#          userdn  => "ou=utilisateurs,dc=pasteur,dc=fr"
-#          groupdn => "ou=entites,ou=groupes,dc=pasteur,dc=fr"
-#          use_ssl => false
-#          uidNumber     => 7225
-#        }
-#      }
-#    CONFIG
-#    end
-#
-#    sample("test" => "test") do
-#      expect(subject).to include('user')
-#      expect(subject["user"]).to eq('Eric DEVEAUD')
-#      expect(subject).to include('group')
-#      expect(subject["group"]).to eq('CIB')
-#      expect(subject).to include('login')
-#      expect(subject["login"]).to eq('edeveaud')
-#      expect(subject).to include('tags')
-#      expect(subject["tags"]).to eq(["LDAP_OK"])
-#
-#    end
-#  end #end LDAP test
-#
-#  describe "LDAPS test" do
-#    let(:config) do <<-CONFIG
-#      filter {
-#        LDAPresolve {
-#          host    => "ldap.pasteur.fr"
-#          userdn  => "ou=utilisateurs,dc=pasteur,dc=fr"
-#          groupdn => "ou=entites,ou=groupes,dc=pasteur,dc=fr"
-#          use_ssl => true
-#          uidNumber     => 7225
-#        }
-#      }
-#    CONFIG
-#    end
-#
-#    sample("test" => "test") do
-#      expect(subject).to include('user')
-#      expect(subject["user"]).to eq('Eric DEVEAUD')
-#      expect(subject).to include('group')
-#      expect(subject["group"]).to eq('CIB')
-#      expect(subject).to include('tags')
-#      expect(subject["tags"]).to eq(["LDAP_OK"])
-#
-#    end
-#  end # end LDAPS test
 end
