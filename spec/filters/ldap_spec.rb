@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require_relative '../spec_helper'
 require "logstash/filters/ldap"
 
@@ -52,6 +53,64 @@ describe LogStash::Filters::Ldap do
   end
 
 
+  describe "check simple search with custom object type" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          identifier_type => "person"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
+    end
+  end
+
+
+  describe "check simple search with custom identifier" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_key => "homeDirectory"
+          identifier_value => "/users/login/u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
+    end
+  end
+
+
   describe "check simple search with customs attributs" do
     let(:config) do <<-CONFIG
       filter {
@@ -85,12 +144,68 @@ describe LogStash::Filters::Ldap do
   end
 
 
-  describe "check bad authentification credentials" do
+  describe "check bad ldap host" do
     let(:config) do <<-CONFIG
       filter {
         ldap {
           identifier_value => "u501565"
           host => "example.org"
+          ldap_port => "#{@ldap_port}"
+          username => "test"
+          password => "test"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('err')
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('givenName')
+      expect(subject).not_to include('sn')
+
+      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("err")).to eq("Can't contact LDAP server")
+    end
+  end
+
+
+  describe "test bad userdn" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "test"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('err')
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('givenName')
+      expect(subject).not_to include('sn')
+
+      expect(subject.get("tags")).to eq(["LDAP_ERR_FETCH"])
+      expect(subject.get("err")).to eq("Invalid DN syntax")
+    end
+  end
+
+
+  describe "test bad user/password couple" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
           ldap_port => "#{@ldap_port}"
           username => "test"
           password => "test"
