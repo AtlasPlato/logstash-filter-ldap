@@ -16,7 +16,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :identifier_key, :validate => :string, :required => false, :default => "uid"
   config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
 
-  config :attributs, :validate => :array, :required => false, :default => ['givenName', 'sn']
+  config :attributes, :validate => :array, :required => false, :default => ['givenName', 'sn']
 
   config :host, :validate => :string, :required => true
   config :ldap_port, :validate => :number, :required => false, :default => 389
@@ -110,7 +110,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     scope = LDAP::LDAP_SCOPE_SUBTREE
 
     begin
-      conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributs) { |entry|
+      conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributes) { |entry|
         hashEntry = {}
         for k in entry.get_attributes
           ret[k] = entry.vals(k).join(" ")
@@ -126,7 +126,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     suceed = false
 
     ret.each{|key, value|
-      if @attributs.include?(key)
+      if @attributes.include?(key)
         suceed = true
         break
       end
