@@ -58,7 +58,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   public
   def filter(event)
-    identifier_hash = hashIdentifier(@identifier_value)
+
+    identifier_value = event.sprintf(@identifier_value)
+
+    identifier_hash = hashIdentifier(identifier_value)
 
     cached = false
     if @use_cache
@@ -75,7 +78,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         conn = LDAP::Conn.new(host=@host, port=@ldap_port)
       end
 
-      res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, @identifier_value)
+      res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, identifier_value)
 
       if @use_cache
         @Buffer.cache(identifier_hash, res)
