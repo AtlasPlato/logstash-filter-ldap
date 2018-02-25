@@ -6,74 +6,97 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 ## Documentation
 
-Logstash provides infrastructure to automatically generate documentation for this plugin. We use the asciidoc format to write documentation so any comments in the source code will be first converted into asciidoc and then into html. All plugin documentation are placed under one [central location](http://www.elastic.co/guide/en/logstash/current/).
+**logstash-filter-ldap** filter will add to the event event fields specifield from a ldap server, with the informations specifieds.
 
-- For formatting code or config example, you can use the asciidoc `[source,ruby]` directive
-- For more asciidoc formatting tips, see the excellent reference here https://github.com/elastic/docs#asciidoc-guide
+If there are no error during process, than no error tag is set ; otherwise, there could have been, in the **tags** array :
+- **LDAP_ERR_CONN**: Problem while connecting to the server : bad *host, port, username or password*
+- **LDAP_ERR_FETCH**: Problem while fetching information from the server, probably bad *userdn*
+- **LDAP_UNK_USER**: User probably wasn't found
+- **LDAP_BAD_BUFF**: The buffer type you selected wasn't found
 
-## Need Help?
+If so, a field called **err** will be add to the event, with more details about the problem met.
 
-Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/logstash discussion forum.
+## Example
 
-## Developing
+### Basic sample
 
-### 1. Plugin Developement and Testing
+#### Input evenement
 
-#### Code
-- To get started, you'll need JRuby with the Bundler gem installed.
-
-- Create a new plugin or clone and existing from the GitHub [logstash-plugins](https://github.com/logstash-plugins) organization. We also provide [example plugins](https://github.com/logstash-plugins?query=example).
-
-- Install dependencies
-```sh
-bundle install
+```
+{
+    "@timestamp" => 2018-02-25T10:04:22.338Z,
+    "@version" => "1",
+    "myUid" => "u501565"
+}
 ```
 
-#### Test
+#### Logstash filter
 
-- Update your dependencies
-
-```sh
-bundle install
+```
+filter {
+  ldap {
+    identifier_value => "u501565"
+    host => "my_ldap_server.com"
+    ldap_port => "389"
+    username => "connect_username"
+    password => "connect_password"
+    userdn => "user_search_pattern"
+  }
+}
 ```
 
-- Run tests
+#### Output evenement
 
-```sh
-bundle exec rspec
+```
+{
+    "@timestamp" => 2018-02-25T10:04:22.338Z,
+    "@version" => "1",
+    "myUid" => "u501565",
+    "givenName" => "VALENTIN",
+    "sn" => "BOURDIER",
+}
 ```
 
-### 2. Running your unpublished Plugin in Logstash
+## Full parameters availables
 
-#### 2.1 Run in a local Logstash clone
+Here is a list of all parameters, with their default value, if any, and their description
 
-- Edit Logstash `Gemfile` and add the local plugin path, for example:
-```ruby
-gem "logstash-filter-awesome", :path => "/your/local/logstash-filter-awesome"
-```
-- Install plugin
-```sh
-bin/logstash-plugin install --no-verify
-```
-- Run Logstash with your plugin
-```sh
-bin/logstash -e 'filter {awesome {}}'
-```
-At this point any modifications to the plugin code will be applied to this local Logstash setup. After modifying the plugin, simply rerun Logstash.
+|    Option name    | Type    | Required | Default value       | Description                                                                                                   | Example                            |
+|:-----------------:|---------|----------|---------------------|---------------------------------------------------------------------------------------------------------------|------------------------------------|
+| identifier_value  | string  | yes      | n/a                 | Identifier of the value to search. If identifier type is uid, then the value should be the uid to search for. | "123456"                           |
+| identifier_key    | string  | no       | "uid"               | Type of the identifier to search                                                                              | "uid"                              |
+| identifier_type   | string  | no       | "posixAccount"      | Object class of the object to search                                                                          | "person"                           |
+| attributes        | array   | no       | ['givenName', 'sn'] | List of attributes to get                                                                                     | ['region', 'dn', 'mail']           |
+| host              | string  | yes      | n/a                 | LDAP server host adress                                                                                       | "ldapserveur.com"                  |
+| ldap_port         | number  | no       | 389                 | LDAP server port for non-ssl connection                                                                       | 400                                |
+| ldaps_port        | number  | no       | 636                 | LDAP server port for ssl connection                                                                           | 401                                |
+| use_ssl           | boolean | no       | false               | Enable or not ssl connection for LDAP  server. Set-up the good ldap(s)_port depending on that                 | true                               |
+| username          | string  | no       | n/a                 | Username to use for search in the database                                                                    | "cn=SearchUser,ou=person,o=domain" |
+| password          | string  | no       | n/a                 | Password of the account linked to previous username                                                           | "123456"                           |
+| buffer_type       | string  | no       | "memory"            | Type of buffer to use. Currently, only one is available, "memory" buffer                                      | "memory"                           |
+| use_cache         | boolean | no       | true                | Choose to enable or not use of buffer                                                                         | false                              |
+| cache_interval    | number  | no       | 300                 | Cache duration (in s) before refreshing values of it                                                          | 3600                               |
+| buffer_size_limit | number  | no       | 20000               | Number of object max that the buffer can contains                                                             | 100                                |
 
-#### 2.2 Run in an installed Logstash
+## Buffer
 
-You can use the same **2.1** method to run your plugin in an installed Logstash by editing its `Gemfile` and pointing the `:path` to your local plugin development directory or you can build the gem and install it using:
+As all filters, this filter treat only 1 event at a time, that can lead to some slowing down of the pipeline's speed, and high network I/O.
 
-- Build your plugin gem
-```sh
-gem build logstash-filter-awesome.gemspec
-```
-- Install the plugin from the Logstash home
-```sh
-bin/logstash-plugin install /your/local/plugin/logstash-filter-awesome.gem
-```
-- Start Logstash and proceed to test the plugin
+Due to that, a buffer can be set, with some parameters.
+
+Currently, there is only one basic **"memory"** buffer.
+
+You can enable / disable use of buffer with the option **use_cache**
+
+### Memory Buffer
+
+This buffer **store** data fetched from the LDAP server **in RAM**, and can be configured with two parameters:
+- cache_interval: duration (in s) before refresh data ever get
+- buffer_size_limit: number of couple (identifier, attributes) that the buffer can contains
+
+## Thanks for
+
+This plugin was strongly inspired by the [logstash_filter_LDAPresolve](https://github.com/EricDeveaud/logstash_filter_LDAPresolve), made by [EricDeveaud](https://github.com/EricDeveaud)
 
 ## Contributing
 
