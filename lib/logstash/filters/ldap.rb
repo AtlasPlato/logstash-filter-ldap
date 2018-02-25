@@ -71,7 +71,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     if cached
       res = @Buffer.get(identifier_hash)
     else
-      @logger.info("prompt LDAP for #{identifier_hash} informations")
+      @logger.debug("Search for LDAP '#{identifier_value}' element")
       if use_ssl
         conn = LDAP::SSLConn.new(host=@host, port=@ldaps_port)
       else
@@ -117,7 +117,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     begin
       conn.bind(username, password)
     rescue LDAP::Error => err
-      @logger.error("Error: #{err.message}")
+      @logger.error("Error while setting-up connection with LDPAP server '#{@host}': #{err.message}")
       ret['err'] = err.message
       exitstatus  = @FAIL_CONN
       return ret, exitstatus
@@ -133,7 +133,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         end
       }
     rescue LDAP::Error => err
-      @logger.error("Error: #{err.message}")
+      @logger.error("Error while searching informations: #{err.message}")
       ret['err'] = err.message
       exitstatus  = @FAIL_FETCH
       return ret, exitstatus
@@ -149,6 +149,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     }
 
     if !suceed
+      @logger.debug("Unable to find informations for element '#{identifier_value}'")
       exitstatus = "#{@UNKNOWN_USER}"
       return ret, exitstatus
     end
