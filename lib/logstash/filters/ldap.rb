@@ -73,7 +73,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # We get the identifier, and create hash from it
 
     identifier_value = event.sprintf(@identifier_value)
-    identifier_hash = hashIdentifier(identifier_value)
+    identifier_hash = hashIdentifier(@host, @port, @identifier_key, identifier_value)
 
     # We check if it is cache
 
@@ -130,8 +130,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   # Permet to create an unique hash for an value, to store it into the buffer
 
   private
-  def hashIdentifier(identifier_value)
+  def hashIdentifier(host, port, identifier_key, identifier_value)
     md5 = Digest::MD5.new
+    md5.update(host)
+    md5.update(port.to_s)
+    md5.update(identifier_key)
     md5.update(identifier_value)
     return md5.hexdigest
   end
