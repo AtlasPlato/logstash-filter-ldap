@@ -18,6 +18,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :identifier_key, :validate => :string, :required => false, :default => "uid"
   config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
 
+  config :target, :validate => :string, :required => false, :default => "ldap"
   config :attributes, :validate => :array, :required => false, :default => ['givenName', 'sn']
 
   config :host, :validate => :string, :required => true
@@ -108,10 +109,15 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     end
 
-    # Then we add result fetched from the database into currsent evenement
+    # Then we add result fetched from the database into current evenement
 
     res.each{|key, value|
-      event.set(key, value)
+      targetArray = event.get(target)
+      if targetArray.nil?
+        targetArray = {}
+      end
+      targetArray[key] = value
+      event.set(target, targetArray)
     }
 
     # If there was a problem, we set the tag associated
@@ -153,7 +159,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       conn.bind(username, password)
     rescue LDAP::Error => err
       @logger.error("Error while setting-up connection with LDPAP server '#{@host}': #{err.message}")
-      ret['err'] = err.message
+      ret["error"] = err.message
       exitstatus  = @FAIL_CONN
       return ret, exitstatus
     end
@@ -171,7 +177,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       }
     rescue LDAP::Error => err
       @logger.error("Error while searching informations: #{err.message}")
-      ret['err'] = err.message
+      ret["error"] = err.message
       exitstatus  = @FAIL_FETCH
       return ret, exitstatus
     end

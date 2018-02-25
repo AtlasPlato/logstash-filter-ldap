@@ -6,7 +6,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 ## Documentation
 
-**logstash-filter-ldap** filter will add to the event event fields specifield from a ldap server, with the informations specifieds.
+**logstash-filter-ldap** filter will add to the event event fields specifield from a ldap server, with the informations specifieds. Fields will be stored in a variable called **target**, that you can modify in the configuration file
 
 If there are no error during process, than no error tag is set ; otherwise, there could have been, in the **tags** array :
 - **LDAP_ERR_CONN**: Problem while connecting to the server : bad *host, port, username or password*
@@ -14,7 +14,7 @@ If there are no error during process, than no error tag is set ; otherwise, ther
 - **LDAP_UNK_USER**: User probably wasn't found
 - **LDAP_BAD_BUFF**: The buffer type you selected wasn't found
 
-If so, a field called **err** will be add to the event, with more details about the problem met.
+If so, a field called **error** will be add to the event, with more details about the problem met.
 
 ## Example
 
@@ -67,6 +67,7 @@ Here is a list of all parameters, with their default value, if any, and their de
 | identifier_key    | string  | no       | "uid"               | Type of the identifier to search                                                                              | "uid"                              |
 | identifier_type   | string  | no       | "posixAccount"      | Object class of the object to search                                                                          | "person"                           |
 | attributes        | array   | no       | ['givenName', 'sn'] | List of attributes to get                                                                                     | ['region', 'dn', 'mail']           |
+| target            | string  | no       | "ldap"              | Name of the variable you want the result being stocked in                   | "myCustomVariableName"           |
 | host              | string  | yes      | n/a                 | LDAP server host adress                                                                                       | "ldapserveur.com"                  |
 | ldap_port         | number  | no       | 389                 | LDAP server port for non-ssl connection                                                                       | 400                                |
 | ldaps_port        | number  | no       | 636                 | LDAP server port for ssl connection                                                                           | 401                                |

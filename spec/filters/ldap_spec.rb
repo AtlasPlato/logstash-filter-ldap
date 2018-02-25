@@ -32,25 +32,29 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
 
     sample("test" => "test2" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
   end
 
@@ -72,25 +76,29 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
 
     sample("test" => "test2" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
   end
 
@@ -112,14 +120,16 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
   end
 
@@ -140,14 +150,16 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('err')
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include("error")
       expect(subject).to include('tags')
 
-      expect(subject).not_to include('givenName')
-      expect(subject).not_to include('sn')
+      expect(subject.get('ldap')).not_to include('givenName')
+      expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
-      expect(subject.get("err")).to eq("Can't contact LDAP server")
+      expect(subject.get("ldap")["error"]).to eq("Can't contact LDAP server")
     end
   end
 
@@ -169,14 +181,16 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('givenName')
-      expect(subject).to include('sn')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('givenName')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("givenName")).to eq("VALENTIN")
-      expect(subject.get("sn")).to eq("BOURDIER")
+      expect(subject.get("ldap")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
     end
   end
 
@@ -198,18 +212,23 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('gender')
-      expect(subject).to include('c')
-      expect(subject).to include('dominolanguage')
+      expect(subject).to include('ldap')
 
-      expect(subject).not_to include('givenName')
-      expect(subject).not_to include('sn')
-      expect(subject).not_to include('err')
+      expect(subject.get('ldap')).to include('gender')
+      expect(subject.get('ldap')).to include('c')
+      expect(subject.get('ldap')).to include('dominolanguage')
+
+      expect(subject.get('ldap')).not_to include('givenName')
+      expect(subject.get('ldap')).not_to include('sn')
+      expect(subject.get('ldap')).not_to include("error")
+      expect(subject.get('ldap')).not_to include('tags')
+
+      expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("gender")).to eq("M")
-      expect(subject.get("c")).to eq("FR")
-      expect(subject.get("dominolanguage")).to eq("FR")
+      expect(subject.get("ldap")["gender"]).to eq("M")
+      expect(subject.get("ldap")["c"]).to eq("FR")
+      expect(subject.get("ldap")["dominolanguage"]).to eq("FR")
     end
   end
 
@@ -230,14 +249,16 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('err')
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include("error")
       expect(subject).to include('tags')
 
-      expect(subject).not_to include('givenName')
-      expect(subject).not_to include('sn')
+      expect(subject.get('ldap')).not_to include('givenName')
+      expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
-      expect(subject.get("err")).to eq("Can't contact LDAP server")
+      expect(subject.get("ldap")["error"]).to eq("Can't contact LDAP server")
     end
   end
 
@@ -258,14 +279,16 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('err')
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include("error")
       expect(subject).to include('tags')
 
-      expect(subject).not_to include('givenName')
-      expect(subject).not_to include('sn')
+      expect(subject.get('ldap')).not_to include('givenName')
+      expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_FETCH"])
-      expect(subject.get("err")).to eq("Invalid DN syntax")
+      expect(subject.get("ldap")["error"]).to eq("Invalid DN syntax")
     end
   end
 
@@ -286,14 +309,72 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      expect(subject).to include('err')
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include("error")
       expect(subject).to include('tags')
 
-      expect(subject).not_to include('givenName')
-      expect(subject).not_to include('sn')
+      expect(subject.get('ldap')).not_to include('givenName')
+      expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
-      expect(subject.get("err")).to eq("Can't contact LDAP server")
+      expect(subject.get("ldap")["error"]).to eq("Can't contact LDAP server")
+    end
+  end
+
+
+  describe "check bad identifier user" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "abcdefg"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('ldap')
+
+      expect(subject.get("tags")).to eq(["LDAP_UNK_USER"])
+    end
+  end
+
+
+  describe "check simple search with custom target" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          target => "myTarget"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('myTarget')
+
+      expect(subject.get('myTarget')).to include('givenName')
+      expect(subject.get('myTarget')).to include('sn')
+
+      expect(subject.get('myTarget')).not_to include("error")
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("myTarget")["givenName"]).to eq("VALENTIN")
+      expect(subject.get("myTarget")["sn"]).to eq("BOURDIER")
     end
   end
 
