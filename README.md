@@ -98,6 +98,10 @@ This buffer **store** data fetched from the LDAP server **in RAM**, and can be c
 
 This plugin was strongly inspired by the [logstash_filter_LDAPresolve](https://github.com/EricDeveaud/logstash_filter_LDAPresolve), made by [EricDeveaud](https://github.com/EricDeveaud)
 
+## TODO
+
+Instead creating one connection for each evenement, create only one into the instance class, with a retry number set-up into the configuration file
+
 ## Contributing
 
 All contributions are welcome: ideas, patches, documentation, bug reports, complaints, and even something you drew up on a napkin.

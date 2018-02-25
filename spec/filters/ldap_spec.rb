@@ -5,6 +5,8 @@ require "logstash/filters/ldap"
 
 describe LogStash::Filters::Ldap do
 
+  # You need to set-up all those environement variables to
+  # test this plugin using "bundle exec rspect"
   before(:each) do
     @ldap_host=ENV["ldap_host"]
     @ldap_port=ENV["ldap_port"]
@@ -24,6 +26,46 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           userdn => "#{@ldap_userdn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
+    end
+
+    sample("test" => "test2" ) do
+      expect(subject).to include('givenName')
+      expect(subject).to include('sn')
+
+      expect(subject).not_to include('err')
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("givenName")).to eq("VALENTIN")
+      expect(subject.get("sn")).to eq("BOURDIER")
+    end
+  end
+
+
+  describe "check simple search without cache" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          userdn => "#{@ldap_userdn}"
+          use_cache => "false"
         }
       }
       CONFIG
