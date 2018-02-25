@@ -12,6 +12,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config_name "ldap"
 
+  # Definition of the filter config parameters
+
   config :identifier_value, :validate => :string, :required => true
   config :identifier_key, :validate => :string, :required => false, :default => "uid"
   config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
@@ -34,15 +36,21 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :buffer_size_limit, :validate => :number, :required => false, :default => 20000
 
 
+  # Equivalent to 'initialize' method
+
   public
   def register
     require 'ldap'
+
+    # Setting up some flags
 
     @SUCCESS = "LDAP_OK"
     @FAIL_CONN = "LDAP_ERR_CONN"
     @FAIL_FETCH = "LDAP_ERR_FETCH"
     @UNKNOWN_USER = "LDAP_UNK_USER"
     @BAD_BUFFER_TYPE = "LDAP_BAD_BUFF"
+
+    # We check if cache type selected is valid
 
     if @use_cache
       if @buffer_type == "memory"
@@ -56,12 +64,18 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     end
   end
 
+  # This function permet to treat an event, and will be called each time
+  # an event should be processing
+
   public
   def filter(event)
 
-    identifier_value = event.sprintf(@identifier_value)
+    # We get the identifier, and create hash from it
 
+    identifier_value = event.sprintf(@identifier_value)
     identifier_hash = hashIdentifier(identifier_value)
+
+    # We check if it is cache
 
     cached = false
     if @use_cache
@@ -69,8 +83,12 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     end
 
     if cached
+      # If cached, we get it
+
       res = @Buffer.get(identifier_hash)
     else
+      # We create the LDAP connection
+
       @logger.debug("Search for LDAP '#{identifier_value}' element")
       if use_ssl
         conn = LDAP::SSLConn.new(host=@host, port=@ldaps_port)
@@ -78,7 +96,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         conn = LDAP::Conn.new(host=@host, port=@ldap_port)
       end
 
+      # Then we launch the search
+
       res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, identifier_value)
+
+      # If we use the cache, then we store result for next searchs
 
       if @use_cache
         @Buffer.cache(identifier_hash, res)
@@ -86,9 +108,13 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     end
 
+    # Then we add result fetched from the database into currsent evenement
+
     res.each{|key, value|
       event.set(key, value)
     }
+
+    # If there was a problem, we set the tag associated
 
     if !exitstatus.nil? && exitstatus != @SUCCESS
       if event.get("tags")
@@ -101,6 +127,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     filter_matched(event)
   end
 
+  # Permet to create an unique hash for an value, to store it into the buffer
+
   private
   def hashIdentifier(identifier_value)
     md5 = Digest::MD5.new
@@ -108,11 +136,15 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     return md5.hexdigest
   end
 
+  # Search LDAP attributes of the object
+
   private
   def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
 
     exitstatus = @SUCCESS
     ret = {}
+
+    # We create the connection
 
     begin
       conn.bind(username, password)
@@ -124,6 +156,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     end
 
     scope = LDAP::LDAP_SCOPE_SUBTREE
+
+    # We launch the search
 
     begin
       conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributes) { |entry|
@@ -139,6 +173,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       return ret, exitstatus
     end
 
+    # We check if at least one attributes was set from attributes list
+
     suceed = false
 
     ret.each{|key, value|
@@ -147,6 +183,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         break
       end
     }
+
+    # If not, it's probably because we didn't found the object
 
     if !suceed
       @logger.debug("Unable to find informations for element '#{identifier_value}'")
