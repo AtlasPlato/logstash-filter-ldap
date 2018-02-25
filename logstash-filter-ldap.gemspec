@@ -2,8 +2,8 @@ Gem::Specification.new do |s|
   s.name          = 'logstash-filter-ldap'
   s.version       = '0.1.0'
   s.licenses      = ['Apache License (2.0)']
-  s.summary       = 'Write a short summary, because Rubygems requires one.'
-  s.description   = 'Write a longer description or delete this line.'
+  s.summary       = 'Logstash filter to get LDAP or LDAPs informations.'
+  s.description   = 'This is a Logstash''s filter plugin to fetch LDAP informations. Do not use it standalone.'
   s.homepage      = 'https://github.com/Transrian/logstash-filter-ldap'
   s.authors       = ['Valentin Bourdier']
   s.email         = 'valentin.bourdier@mail.com'
