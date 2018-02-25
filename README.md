@@ -52,8 +52,10 @@ filter {
     "@timestamp" => 2018-02-25T10:04:22.338Z,
     "@version" => "1",
     "myUid" => "u501565",
-    "givenName" => "VALENTIN",
-    "sn" => "BOURDIER",
+    "ldap" => {
+        "givenName" => "VALENTIN",
+        "sn" => "BOURDIER"
+    }
 }
 ```
 
