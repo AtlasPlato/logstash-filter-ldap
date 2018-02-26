@@ -1,0 +1,17 @@
+dn: cn=existing,dc=example,dc=org
+objectClass: posixAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: VALENTIN BOURDIER - U501565
+uid: u501565
+uidNumber: 479615
+gidNumber: 9043
+sn: BOURDIER
+homeDirectory: /users/login/u501565
+gecos: VALENTIN BOURDIER
+mail: te@example.com
+ou:: UGFsbcO2
+givenName: VALENTIN
+description: A test entry for logstash-filter-ldap

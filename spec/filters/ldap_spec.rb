@@ -205,7 +205,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           userdn => "#{@ldap_userdn}"
-          attributes => ["gender", "c", "dominolanguage"]
+          attributes => ["cn", "uidNumber", "gidNumber"]
         }
       }
       CONFIG
@@ -214,9 +214,9 @@ describe LogStash::Filters::Ldap do
     sample("test" => "test" ) do
       expect(subject).to include('ldap')
 
-      expect(subject.get('ldap')).to include('gender')
-      expect(subject.get('ldap')).to include('c')
-      expect(subject.get('ldap')).to include('dominolanguage')
+      expect(subject.get('ldap')).to include('cn')
+      expect(subject.get('ldap')).to include('uidNumber')
+      expect(subject.get('ldap')).to include('gidNumber')
 
       expect(subject.get('ldap')).not_to include('givenName')
       expect(subject.get('ldap')).not_to include('sn')
@@ -226,9 +226,9 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
-      expect(subject.get("ldap")["gender"]).to eq("M")
-      expect(subject.get("ldap")["c"]).to eq("FR")
-      expect(subject.get("ldap")["dominolanguage"]).to eq("FR")
+      expect(subject.get("ldap")["cn"]).to eq("VALENTIN BOURDIER - U501565")
+      expect(subject.get("ldap")["uidNumber"]).to eq("479615")
+      expect(subject.get("ldap")["gidNumber"]).to eq("9043")
     end
   end
 

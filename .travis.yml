@@ -1,0 +1,36 @@
+---
+language: ruby
+cache: bundler
+services:
+- docker
+sudo: false
+env:
+  global:
+    - ldap_host="localhost"
+    - ldap_port="389"
+    - ldap_username="cn=admin,dc=example,dc=org"
+    - ldap_password="admin"
+    - ldap_userdn="dc=example,dc=org"
+matrix:
+  include:
+  - rvm: jruby-9.1.13.0
+    env: LOGSTASH_BRANCH=master
+  - rvm: jruby-9.1.13.0
+    env: LOGSTASH_BRANCH=6.x
+  - rvm: jruby-9.1.13.0
+    env: LOGSTASH_BRANCH=6.0
+  - rvm: jruby-1.7.27
+    env: LOGSTASH_BRANCH=5.6
+  fast_finish: true
+install: true
+addons:
+  apt:
+    packages:
+    - ldap-utils
+before_install:
+  - docker pull osixia/openldap:1.1.11
+  - docker run --name my-openldap-container -p 389:389 --detach osixia/openldap:1.1.11
+  - sleep 10
+  - ldapadd -x -h localhost -p 389 -D "cn=admin,dc=example,dc=org" -w admin -f ci/ldif/base.ldif
+script: ci/build.sh
+jdk: oraclejdk8
