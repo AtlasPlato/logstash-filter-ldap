@@ -1,4 +1,4 @@
-dn: cn: VALENTIN BOURDIER - U501565,dc=example,dc=org
+dn: cn=VALENTIN BOURDIER - U501565,dc=example,dc=org
 objectClass: posixAccount
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
