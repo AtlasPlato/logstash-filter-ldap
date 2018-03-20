@@ -20,6 +20,7 @@
     recreate: true
     published_ports:
       - 389:389
+    restart_policy: unless-stopped
 
 - name: Insert LDAP sample
   command: "ldapadd -x -h localhost -p 389 -D 'cn=admin,dc=example,dc=org' -w admin -f {{ project_mountpoint }}/ci/ldif/base.ldif"
