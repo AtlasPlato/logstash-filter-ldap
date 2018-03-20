@@ -12,7 +12,7 @@ describe LogStash::Filters::Ldap do
     @ldap_port=ENV["ldap_port"]
     @ldap_username=ENV["ldap_username"]
     @ldap_password=ENV["ldap_password"]
-    @ldap_userdn=ENV["ldap_userdn"]
+    @ldap_search_dn=ENV["ldap_search_dn"]
   end
 
 
@@ -25,7 +25,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -68,7 +68,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
           use_cache => "true"
         }
       }
@@ -113,7 +113,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -143,7 +143,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -174,7 +174,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -204,7 +204,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
           attributes => ["cn", "uidNumber", "gidNumber"]
         }
       }
@@ -242,7 +242,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "test"
           password => "test"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -263,7 +263,7 @@ describe LogStash::Filters::Ldap do
   end
 
 
-  describe "test bad userdn" do
+  describe "test bad search_dn" do
     let(:config) do <<-CONFIG
       filter {
         ldap {
@@ -272,7 +272,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "test"
+          search_dn => "test"
         }
       }
       CONFIG
@@ -302,7 +302,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "test"
           password => "test"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -332,7 +332,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG
@@ -358,7 +358,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
-          userdn => "#{@ldap_userdn}"
+          search_dn => "#{@ldap_search_dn}"
         }
       }
       CONFIG

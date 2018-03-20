@@ -10,7 +10,7 @@ env:
     - ldap_port="389"
     - ldap_username="cn=admin,dc=example,dc=org"
     - ldap_password="admin"
-    - ldap_userdn="dc=example,dc=org"
+    - ldap_search_dn="dc=example,dc=org"
 matrix:
   include:
   - rvm: jruby-9.1.13.0

@@ -14,5 +14,5 @@ environment_variables:
   - name: "ldap_password"
     value: "admin"
 
-  - name: "ldap_userdn"
+  - name: "ldap_search_dn"
     value: "dc=example,dc=org"

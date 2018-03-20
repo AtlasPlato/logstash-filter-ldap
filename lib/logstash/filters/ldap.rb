@@ -29,7 +29,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :username, :validate => :string, :required => false
   config :password, :validate => :string, :required => false
 
-  config :userdn, :validate => :string, :required => true
+  config :search_dn, :validate => :string, :required => true
 
   config :use_cache, :validate => :boolean, :required => false, :default => false
   config :cache_type, :validate => :string, :required => false, :default => "memory"
@@ -169,7 +169,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # We launch the search
 
     begin
-      conn.search(@userdn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributes) { |entry|
+      conn.search(@search_dn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributes) { |entry|
         hashEntry = {}
         for k in entry.get_attributes
           ret[k] = entry.vals(k).join(" ")

@@ -12,7 +12,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 If there are no error during process, than no error tag is set ; otherwise, there could have been, in the **tags** array :
 - **LDAP_ERR_CONN**: Problem while connecting to the server : bad *host, port, username or password*
-- **LDAP_ERR_FETCH**: Problem while fetching information from the server, probably bad *userdn*
+- **LDAP_ERR_FETCH**: Problem while fetching information from the server, probably bad *search_dn*
 - **LDAP_UNK_USER**: User probably wasn't found
 - **LDAP_BAD_BUFF**: The buffer type you selected wasn't found
 
@@ -42,7 +42,7 @@ filter {
     ldap_port => "389"
     username => "connect_username"
     password => "connect_password"
-    userdn => "user_search_pattern"
+    search_dn => "user_search_pattern"
   }
 }
 ```
