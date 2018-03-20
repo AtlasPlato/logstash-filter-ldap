@@ -69,7 +69,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           userdn => "#{@ldap_userdn}"
-          use_cache => "false"
+          use_cache => "true"
         }
       }
       CONFIG

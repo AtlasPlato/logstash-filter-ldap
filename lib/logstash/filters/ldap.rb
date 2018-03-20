@@ -32,7 +32,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :userdn, :validate => :string, :required => true
 
   config :buffer_type, :validate => :string, :required => false, :default => "memory"
-  config :use_cache, :validate => :boolean, :required => false, :default => true
+  config :use_cache, :validate => :boolean, :required => false, :default => false
   config :cache_interval, :validate => :number, :required => false, :default => 300
   config :buffer_size_limit, :validate => :number, :required => false, :default => 20000
 

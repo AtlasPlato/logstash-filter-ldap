@@ -79,7 +79,7 @@ Here is a list of all parameters, with their default value, if any, and their de
 | username          | string  | no       | n/a                 | Username to use for search in the database                                                                    | "cn=SearchUser,ou=person,o=domain" |
 | password          | string  | no       | n/a                 | Password of the account linked to previous username                                                           | "123456"                           |
 | buffer_type       | string  | no       | "memory"            | Type of buffer to use. Currently, only one is available, "memory" buffer                                      | "memory"                           |
-| use_cache         | boolean | no       | true                | Choose to enable or not use of buffer                                                                         | false                              |
+| use_cache         | boolean | no       | false                | Choose to enable or not use of buffer                                                                         | true                              |
 | cache_interval    | number  | no       | 300                 | Cache duration (in s) before refreshing values of it                                                          | 3600                               |
 | buffer_size_limit | number  | no       | 20000               | Number of object max that the buffer can contains                                                             | 100                                |
 
