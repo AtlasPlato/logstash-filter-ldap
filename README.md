@@ -35,7 +35,7 @@ If so, a field called **error** will be add to the event, with more details abou
 ```
 filter {
   ldap {
-    identifier_value => "u501565"
+    identifier_value => "%{myUid}"
     host => "my_ldap_server.com"
     ldap_port => "389"
     username => "connect_username"
