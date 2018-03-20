@@ -40,9 +40,9 @@ filter {
     identifier_value => "%{myUid}"
     host => "my_ldap_server.com"
     ldap_port => "389"
-    username => "connect_username"
-    password => "connect_password"
-    search_dn => "user_search_pattern"
+    username => "<connect_username>"
+    password => "<connect_password>"
+    search_dn => "<user_search_pattern>"
   }
 }
 ```
@@ -70,6 +70,7 @@ Here is a list of all parameters, with their default value, if any, and their de
 | identifier_value  | string  | yes      | n/a                 | Identifier of the value to search. If identifier type is uid, then the value should be the uid to search for. | "123456"                           |
 | identifier_key    | string  | no       | "uid"               | Type of the identifier to search                                                                              | "uid"                              |
 | identifier_type   | string  | no       | "posixAccount"      | Object class of the object to search                                                                          | "person"                           |
+| search_dn         | string  | yes       | n/a                 | Domain name in which search inside the ldap database (usually your userdn or groupdn)                                                                 | "dc=example,dc=org" |
 | attributes        | array   | no       | ['givenName', 'sn'] | List of attributes to get                                                                                     | ['region', 'dn', 'mail']           |
 | target            | string  | no       | "ldap"              | Name of the variable you want the result being stocked in                   | "myCustomVariableName"           |
 | host              | string  | yes      | n/a                 | LDAP server host adress                                                                                       | "ldapserveur.com"                  |
