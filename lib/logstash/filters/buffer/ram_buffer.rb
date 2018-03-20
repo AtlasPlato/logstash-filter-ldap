@@ -6,9 +6,9 @@ require_relative "buffer_dao"
 class RamBuffer < BufferDAO
 
   public
-  def initialize(cache_interval, buffer_size_limit)
-    @cache_interval = cache_interval
-    @buffer_size_limit = buffer_size_limit
+  def initialize(cache_duration, cache_size)
+    @cache_duration = cache_duration
+    @cache_size = cache_size
     @buffer_size = 0
     @cache = {}
   end
@@ -16,7 +16,7 @@ class RamBuffer < BufferDAO
   public
   def cached?(identifier)
     cached = @cache.fetch(identifier, false)
-    if cached and Time.now - cached[0] <= @cache_interval
+    if cached and Time.now - cached[0] <= @cache_duration
       return true
     end
     return false
@@ -24,7 +24,7 @@ class RamBuffer < BufferDAO
 
   public
   def cache(identifier, hash)
-    if @buffer_size < @buffer_size_limit
+    if @buffer_size < @cache_size
       @cache[identifier] = [Time.now, hash]
       @buffer_size += 1
     elsif @cache.fetch(identifier, false)

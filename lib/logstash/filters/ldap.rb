@@ -31,10 +31,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config :userdn, :validate => :string, :required => true
 
-  config :buffer_type, :validate => :string, :required => false, :default => "memory"
   config :use_cache, :validate => :boolean, :required => false, :default => false
-  config :cache_interval, :validate => :number, :required => false, :default => 300
-  config :buffer_size_limit, :validate => :number, :required => false, :default => 20000
+  config :cache_type, :validate => :string, :required => false, :default => "memory"
+  config :cache_memory_duration, :validate => :number, :required => false, :default => 300
+  config :cache_memory_size, :validate => :number, :required => false, :default => 20000
 
 
   # Equivalent to 'initialize' method
@@ -49,16 +49,16 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     @FAIL_CONN = "LDAP_ERR_CONN"
     @FAIL_FETCH = "LDAP_ERR_FETCH"
     @UNKNOWN_USER = "LDAP_UNK_USER"
-    @BAD_BUFFER_TYPE = "LDAP_BAD_BUFF"
+    @BAD_cache_type = "LDAP_BAD_BUFF"
 
     # We check if cache type selected is valid
 
     if @use_cache
-      if @buffer_type == "memory"
+      if @cache_type == "memory"
         @logger.info("Memory cache was selected")
-        @Buffer = RamBuffer.new(@cache_interval, @buffer_size_limit)
+        @Buffer = RamBuffer.new(@cache_memory_duration, @cache_memory_size)
       else
-        @logger.warn("Unknown cache type: #{@buffer_type}")
+        @logger.warn("Unknown cache type: #{@cache_type}")
         @logger.warn("Cache utilisation will be disable")
         @use_cache = false
       end

@@ -59,7 +59,7 @@ describe LogStash::Filters::Ldap do
   end
 
 
-  describe "check simple search without cache" do
+  describe "check simple search with cache" do
     let(:config) do <<-CONFIG
       filter {
         ldap {

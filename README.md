@@ -78,10 +78,10 @@ Here is a list of all parameters, with their default value, if any, and their de
 | use_ssl           | boolean | no       | false               | Enable or not ssl connection for LDAP  server. Set-up the good ldap(s)_port depending on that                 | true                               |
 | username          | string  | no       | n/a                 | Username to use for search in the database                                                                    | "cn=SearchUser,ou=person,o=domain" |
 | password          | string  | no       | n/a                 | Password of the account linked to previous username                                                           | "123456"                           |
-| buffer_type       | string  | no       | "memory"            | Type of buffer to use. Currently, only one is available, "memory" buffer                                      | "memory"                           |
 | use_cache         | boolean | no       | false                | Choose to enable or not use of buffer                                                                         | true                              |
-| cache_interval    | number  | no       | 300                 | Cache duration (in s) before refreshing values of it                                                          | 3600                               |
-| buffer_size_limit | number  | no       | 20000               | Number of object max that the buffer can contains                                                             | 100                                |
+| cache_type       | string  | no       | "memory"            | Type of buffer to use. Currently, only one is available, "memory" buffer                                      | "memory"                           |
+| cache_memory_duration    | number  | no       | 300                 | Cache duration (in s) before refreshing values of it                                                          | 3600                               |
+| cache_memory_size | number  | no       | 20000               | Number of object max that the buffer can contains                                                             | 100                                |
 
 ## Buffer
 
@@ -96,8 +96,8 @@ You can enable / disable use of buffer with the option **use_cache**
 ### Memory Buffer
 
 This buffer **store** data fetched from the LDAP server **in RAM**, and can be configured with two parameters:
-- cache_interval: duration (in s) before refresh data ever get
-- buffer_size_limit: number of couple (identifier, attributes) that the buffer can contains
+- cache_memory_duration: duration (in s) before refresh data ever get
+- cache_memory_size: number of couple (identifier, attributes) that the buffer can contains
 
 ## Thanks for
 
