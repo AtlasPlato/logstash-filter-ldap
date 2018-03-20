@@ -1,0 +1,18 @@
+---
+
+environment_variables:
+
+  - name: "ldap_host"
+    value: "localhost"
+
+  - name: "ldap_port"
+    value: "389"
+
+  - name: "ldap_username"
+    value: "cn=admin,dc=example,dc=org"
+
+  - name: "ldap_password"
+    value: "admin"
+
+  - name: "ldap_userdn"
+    value: "dc=example,dc=org"

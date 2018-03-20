@@ -1,0 +1,10 @@
+---
+- name: Update haveged daemon options
+  shell: "update-rc.d haveged defaults"
+  listen: "Update haveged entropy"
+
+- name: Restart haveged
+  systemd:
+    name: haveged
+    state: restarted
+  listen: "Update haveged entropy"

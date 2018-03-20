@@ -1,0 +1,35 @@
+# Install Python if needed
+
+- name: Install Python 2 if needed
+  hosts: all
+  gather_facts: False
+  become: true
+  tasks:
+    - name: Install Python 2
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      changed_when: False
+
+# Install prerequisits
+
+- name: Update the system
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Update the system
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: automatically_update_system
+  roles:
+    - system-utils
+
+# Install Logstash
+
+- name: Launching Logstash install role
+  hosts: dev-logstash
+  become: true
+  roles:
+    - logstash
+    - jruby
+    - docker
+    - ldap-server

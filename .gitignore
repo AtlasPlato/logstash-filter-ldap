@@ -1,3 +1,20 @@
+################
+# Vagrant part #
+################
+
+.vagrant/
+ubuntu-xenial-16.04-cloudimg-console.log
+
+################
+# Ansible part #
+################
+
+*.retry
+
+#############
+# Ruby part #
+#############
+
 *.gem
 Gemfile.lock
 .bundle

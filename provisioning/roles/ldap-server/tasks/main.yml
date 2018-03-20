@@ -1,0 +1,39 @@
+---
+- name: Install depedencies
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-pip
+    - ldap-utils
+
+- name: Install docker-py
+  pip:
+    name: docker
+    state: present
+
+- name: Re-create the open-ldap container
+  docker_container:
+    name: my-openldap-container
+    image: osixia/openldap:1.1.11
+    state: started
+    recreate: true
+    published_ports:
+      - 389:389
+
+- name: Insert LDAP sample
+  command: "ldapadd -x -h localhost -p 389 -D 'cn=admin,dc=example,dc=org' -w admin -f {{ project_mountpoint }}/ci/ldif/base.ldif"
+  register: task_result
+  until: task_result.rc == 0
+  retries: 10
+  delay: 1
+
+- name: Add user's environment variables
+  become: false
+  lineinfile:
+    path: "${HOME}/.bashrc"
+    regexp: '^export {{ item.name }}='
+    line: "export {{ item.name }}=\"{{ item.value }}\""
+  with_items:
+    - "{{ environment_variables }}"
+  when: environment_variables is defined

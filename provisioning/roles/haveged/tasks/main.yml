@@ -1,0 +1,23 @@
+---
+- name: Install haveged
+  apt:
+    name: haveged
+    state: present
+  notify:
+    - Restart haveged
+
+- name: "Set haveged entropy available"
+  lineinfile:
+    dest: /etc/default/haveged
+    regexp: '^DAEMON_ARGS='
+    line: "DAEMON_ARGS=\"-w 2048\""
+  notify:
+    - Update haveged entropy
+
+- name: Enable haveged daemon service at startup, and launch it
+  systemd:
+    name: haveged
+    enabled: yes
+
+- name: Flush haveged handlers
+  meta: flush_handlers

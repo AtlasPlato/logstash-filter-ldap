@@ -1,0 +1,5 @@
+---
+dependencies:
+  - java
+  - haveged
+  - elastic-base
