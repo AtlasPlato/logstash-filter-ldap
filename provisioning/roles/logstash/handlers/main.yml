@@ -1,6 +1,0 @@
----
-- name: System upgrade
-  apt:
-    update_cache: yes
-    upgrade: dist
-    force: yes

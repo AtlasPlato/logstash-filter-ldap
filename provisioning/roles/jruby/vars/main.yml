@@ -1,5 +1,0 @@
----
-jruby_version: jruby-9.1.13.0
-
-RVM_PATH: /usr/share/rvm/bin/
-JRUBY_PATH: "/usr/share/rvm/rubies/{{ jruby_version }}/bin/"

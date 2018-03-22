@@ -16,12 +16,16 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible_local" do |ansible|
     ansible.provisioning_path = "/vagrant/provisioning"
     ansible.playbook = "playbook.yml"
+    ansible.galaxy_role_file = "requirements.yml"
     ansible.groups = {
       "dev-logstash" => ["logstash-filter-ldap"]
     }
     ansible.extra_vars = {
-      logstash_version: "5.6.4",
-      jruby_version: "jruby-1.7.27"
+      rvm1_default_ruby_version: "jruby-1.7.27",
+      rubies_version: [
+        "jruby-1.7.27",
+        "jruby-9.1.13.0"
+      ]
     }
   end
 
