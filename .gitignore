@@ -24,6 +24,12 @@ Gemfile.lock
 vendor
 
 ##############
+# Maven part #
+##############
+
+.mvn/
+
+##############
 # Other part #
 ##############
 
