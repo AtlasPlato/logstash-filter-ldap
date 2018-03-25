@@ -34,5 +34,5 @@
         - "{{ rubies_version }}"
       rvm1_default_ruby_version: "{{ default_ruby_version }}"
       rvm1_user: 'vagrant'
-    - docker
+    - angstwad.docker_ubuntu
     - ldap-server
