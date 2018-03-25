@@ -100,6 +100,34 @@ This buffer **store** data fetched from the LDAP server **in RAM**, and can be c
 - cache_memory_duration: duration (in s) before refresh data ever get
 - cache_memory_size: number of couple (identifier, attributes) that the buffer can contains
 
+## Development
+
+If you want to help developing this plugin, you can use the  [Vagrantfile](Vagrantfile), that will set-up the your environment. You require :
+- [Vagrant](https://www.vagrantup.com/)
+- [VirtualBox](https://www.virtualbox.org/)
+
+Here are the steps :
+
+``` bash
+# Create the VM, and provision it
+vagrant up
+
+# Connect with SSH into the VM
+vagrant ssh
+
+# Go inside the project directory
+$ cd /vagrant
+
+# Download ruby dependencies
+$ bundle install
+
+# Execute tests
+$ bundle exec rspec
+
+# Build the Gemfile
+$ gem build logstash-filter-ldap.gemspec
+```
+
 ## Thanks for
 
 This plugin was strongly inspired by the [logstash_filter_LDAPresolve](https://github.com/EricDeveaud/logstash_filter_LDAPresolve), made by [EricDeveaud](https://github.com/EricDeveaud)
