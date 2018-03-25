@@ -5,7 +5,7 @@ require "logstash/namespace"
 
 require 'digest/md5'
 
-require_relative "buffer/ram_buffer"
+require_relative "buffer/memory_cache"
 
 
 class LogStash::Filters::Ldap < LogStash::Filters::Base
@@ -56,7 +56,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     if @use_cache
       if @cache_type == "memory"
         @logger.info("Memory cache was selected")
-        @Buffer = RamBuffer.new(@cache_memory_duration, @cache_memory_size)
+        @Buffer = MemoryCache.new(@cache_memory_duration, @cache_memory_size)
       else
         @logger.warn("Unknown cache type: #{@cache_type}")
         @logger.warn("Cache utilisation will be disable")

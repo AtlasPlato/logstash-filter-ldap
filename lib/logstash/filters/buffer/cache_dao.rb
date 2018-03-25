@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 
-class BufferDAO
+class CacheDAO
 
   public
   def cached?(identifier)

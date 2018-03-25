@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-require_relative "buffer_dao"
+require_relative "cache_dao"
 
 
-class RamBuffer < BufferDAO
+class MemoryCache < CacheDAO
 
   public
   def initialize(cache_duration, cache_size)
@@ -27,9 +27,12 @@ class RamBuffer < BufferDAO
     if @buffer_size < @cache_size
       @cache[identifier] = [Time.now, hash]
       @buffer_size += 1
+      return true
     elsif @cache.fetch(identifier, false)
       @cache[identifier] = [Time.now, hash]
+      return true
     end
+    return false
   end
 
   public
