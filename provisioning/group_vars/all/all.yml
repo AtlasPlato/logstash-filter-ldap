@@ -2,3 +2,6 @@
 automatically_update_system: false
 
 project_mountpoint: "/vagrant"
+
+docker_group_members:
+  - vagrant
