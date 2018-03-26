@@ -3,6 +3,9 @@
 require_relative '../spec_helper'
 require "logstash/filters/ldap"
 
+# We disable warning for warning of others dependencies
+$VERBOSE = nil
+
 describe LogStash::Filters::Ldap do
 
   # You need to set-up all those environement variables to
@@ -10,6 +13,7 @@ describe LogStash::Filters::Ldap do
   before(:each) do
     @ldap_host=ENV["ldap_host"]
     @ldap_port=ENV["ldap_port"]
+    @ldaps_port=ENV["ldaps_port"]
     @ldap_username=ENV["ldap_username"]
     @ldap_password=ENV["ldap_password"]
     @ldap_search_dn=ENV["ldap_search_dn"]
@@ -23,6 +27,49 @@ describe LogStash::Filters::Ldap do
           identifier_value => "u501565"
           host => "#{@ldap_host}"
           ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          search_dn => "#{@ldap_search_dn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include('givenname')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("ldap")["givenname"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
+    end
+
+    sample("test" => "test2" ) do
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include('givenname')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("ldap")["givenname"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
+    end
+  end
+
+  describe "check simple search with ssl" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          use_ssl => true
+          ldaps_port => "#{@ldaps_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"

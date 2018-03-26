@@ -8,6 +8,7 @@ env:
   global:
     - ldap_host="localhost"
     - ldap_port="389"
+    - ldaps_port="636"
     - ldap_username="cn=admin,dc=example,dc=org"
     - ldap_password="admin"
     - ldap_search_dn="dc=example,dc=org"

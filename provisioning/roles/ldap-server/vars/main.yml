@@ -8,6 +8,9 @@ environment_variables:
   - name: "ldap_port"
     value: "389"
 
+  - name: "ldaps_port"
+    value: "636"
+
   - name: "ldap_username"
     value: "cn=admin,dc=example,dc=org"
 
