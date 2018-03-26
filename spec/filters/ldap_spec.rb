@@ -205,7 +205,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
-      expect(subject.get("ldap")["error"]).to eq("Connection refused - Connection refused")
+      expect(subject.get("ldap")["error"]).to match("Connection refused -+*")
     end
   end
 
