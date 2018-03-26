@@ -89,7 +89,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     else
       # We create the LDAP connection
 
-      @logger.debug("Search for LDAP '#{identifier_value}' element")
+      @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")
       if use_ssl
         ldap = Net::LDAP.new :host => @host,
         :port => @ldaps_port,
@@ -114,7 +114,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
       # Then we launch the search
 
-      res, exitstatus = ldapsearch(ldap, @identifier_type, @identifier_key, identifier_value)
+      res, exitstatus = ldapsearch(ldap, identifier_value)
 
       # If we use the cache, then we store result for next searchs
 
@@ -163,7 +163,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   # Search LDAP attributes of the object
 
   private
-  def ldapsearch(ldap, identifier_type, identifier_key, identifier_value)
+  def ldapsearch(ldap, identifier_value)
 
     exitstatus = @SUCCESS
     ret = {}
@@ -183,8 +183,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     # We create search parameters
 
-    object_type_filter = Net::LDAP::Filter.eq("objectclass", "#{identifier_type}")
-    identifier_filter = Net::LDAP::Filter.eq("#{identifier_key}", "#{identifier_value}")
+    object_type_filter = Net::LDAP::Filter.eq("objectclass", "#{@identifier_type}")
+    identifier_filter = Net::LDAP::Filter.eq("#{@identifier_key}", "#{identifier_value}")
 
     full_filter = Net::LDAP::Filter.join(identifier_filter, object_type_filter)
     treebase = @search_dn
@@ -216,7 +216,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # If not, it's probably because we didn't found the object
 
     if !suceed
-      @logger.debug("Unable to find informations for element '#{identifier_value}'")
+      @logger.debug? && @logger.debug("Unable to find informations for element '#{identifier_value}'")
       exitstatus = "#{@UNKNOWN_USER}"
       return ret, exitstatus
     end
