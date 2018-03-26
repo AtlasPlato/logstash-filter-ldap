@@ -34,7 +34,7 @@ addons:
     - ldap-utils
 before_install:
   - docker pull osixia/openldap:1.1.11
-  - docker run --name my-openldap-container -p 389:389 --detach osixia/openldap:1.1.11
+  - docker run --name my-openldap-container -p 389:389 -p 636:636 -e "LDAP_TLS_VERIFY_CLIENT=allow" --detach osixia/openldap:1.1.11
   - sleep 10
   - ldapadd -x -h localhost -p 389 -D "cn=admin,dc=example,dc=org" -w admin -f ci/ldif/base.ldif
 script: ci/build.sh
