@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'logstash-devutils'
 
   # Customs gem dependency
-  s.add_runtime_dependency "jruby-ldap"
+  s.add_runtime_dependency 'net-ldap', '~> 0.12.1'
 end

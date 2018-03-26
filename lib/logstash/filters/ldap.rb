@@ -41,7 +41,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   public
   def register
-    require 'ldap'
+    require 'net/ldap'
 
     # Setting up some flags
 
@@ -92,14 +92,27 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
       @logger.debug("Search for LDAP '#{identifier_value}' element")
       if use_ssl
-        conn = LDAP::SSLConn.new(host=@host, port=@ldaps_port)
+        ldap = Net::LDAP.new :host => @host,
+        :port => @ldaps_port,
+        :auth => {
+          :method => :simple,
+          :username => @username,
+          :password => @password
+        }
       else
-        conn = LDAP::Conn.new(host=@host, port=@ldap_port)
+        #conn = LDAP::Conn.new(host=@host, port=@ldap_port)
+        ldap = Net::LDAP.new :host => @host,
+        :port => @ldap_port,
+        :auth => {
+          :method => :simple,
+          :username => @username,
+          :password => @password
+        }
       end
 
       # Then we launch the search
 
-      res, exitstatus = ldapsearch(conn, @identifier_type, @identifier_key, identifier_value)
+      res, exitstatus = ldapsearch(ldap, @identifier_type, @identifier_key, identifier_value)
 
       # If we use the cache, then we store result for next searchs
 
@@ -112,12 +125,12 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # Then we add result fetched from the database into current evenement
 
     res.each{|key, value|
-      targetArray = event.get(target)
+      targetArray = event.get(@target)
       if targetArray.nil?
         targetArray = {}
       end
       targetArray[key] = value
-      event.set(target, targetArray)
+      event.set(@target, targetArray)
     }
 
     # If there was a problem, we set the tag associated
@@ -148,50 +161,55 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   # Search LDAP attributes of the object
 
   private
-  def ldapsearch(conn, identifier_type, identifier_key, identifier_value)
+  def ldapsearch(ldap, identifier_type, identifier_key, identifier_value)
 
     exitstatus = @SUCCESS
     ret = {}
 
-    # We create the connection
+    # We check connection state
 
     begin
-      conn.bind(username, password)
-    rescue LDAP::Error => err
+      if !ldap.bind()
+        raise(ldap.get_operation_result.error_message)
+      end
+    rescue Exception => err
       @logger.error("Error while setting-up connection with LDPAP server '#{@host}': #{err.message}")
       ret["error"] = err.message
       exitstatus  = @FAIL_CONN
       return ret, exitstatus
     end
 
-    scope = LDAP::LDAP_SCOPE_SUBTREE
+    # We create search parameters
+
+    object_type_filter = Net::LDAP::Filter.eq("objectclass", "#{identifier_type}")
+    identifier_filter = Net::LDAP::Filter.eq("#{identifier_key}", "#{identifier_value}")
+
+    full_filter = Net::LDAP::Filter.join(identifier_filter, object_type_filter)
+    treebase = @search_dn
 
     # We launch the search
 
+    suceed = false
+
     begin
-      conn.search(@search_dn, scope, "(& (objectclass=#{identifier_type}) (#{identifier_key}=#{identifier_value}))", @attributes) { |entry|
-        hashEntry = {}
-        for k in entry.get_attributes
-          ret[k] = entry.vals(k).join(" ")
+
+      ldap.search( :base => treebase, :filter => full_filter, :attributes => @attributes) { |entry|
+        entry.each do |attribute, values|
+          suceed = true
+          ret[attribute] = values.join(" ")
         end
       }
-    rescue LDAP::Error => err
+
+      if !ldap.get_operation_result.error_message.empty?
+        raise(ldap.get_operation_result.error_message)
+      end
+
+    rescue Exception => err
       @logger.error("Error while searching informations: #{err.message}")
       ret["error"] = err.message
       exitstatus  = @FAIL_FETCH
       return ret, exitstatus
     end
-
-    # We check if at least one attributes was set from attributes list
-
-    suceed = false
-
-    ret.each{|key, value|
-      if @attributes.include?(key)
-        suceed = true
-        break
-      end
-    }
 
     # If not, it's probably because we didn't found the object
 
