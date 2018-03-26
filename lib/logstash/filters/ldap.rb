@@ -98,6 +98,9 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
           :method => :simple,
           :username => @username,
           :password => @password
+        },
+        :encryption => {
+          :method => :simple_tls
         }
       else
         #conn = LDAP::Conn.new(host=@host, port=@ldap_port)

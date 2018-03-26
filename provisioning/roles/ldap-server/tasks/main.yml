@@ -20,6 +20,9 @@
     recreate: true
     published_ports:
       - 389:389
+      - 636:636
+    env:
+      LDAP_TLS_VERIFY_CLIENT: allow
     restart_policy: unless-stopped
 
 - name: Insert LDAP sample

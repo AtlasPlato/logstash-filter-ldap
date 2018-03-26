@@ -139,7 +139,7 @@ describe LogStash::Filters::Ldap do
           identifier_value => "u501565"
           use_ssl => true
           host => "#{@ldap_host}"
-          ldap_port => "#{@ldap_port}"
+          ldaps_port => "1234"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
@@ -158,7 +158,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
-      expect(subject.get("ldap")["error"]).to eq("no bind result")
+      expect(subject.get("ldap")["error"]).to eq("Connection refused - Connection refused")
     end
   end
 
