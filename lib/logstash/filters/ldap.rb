@@ -49,7 +49,6 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     @FAIL_CONN = "LDAP_ERR_CONN"
     @FAIL_FETCH = "LDAP_ERR_FETCH"
     @UNKNOWN_USER = "LDAP_UNK_USER"
-    @BAD_cache_type = "LDAP_BAD_BUFF"
 
     # We check if cache type selected is valid
 

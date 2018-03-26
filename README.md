@@ -14,7 +14,6 @@ If there are no error during process, than no error tag is set ; otherwise, ther
 - **LDAP_ERR_CONN**: Problem while connecting to the server : bad *host, port, username or password*
 - **LDAP_ERR_FETCH**: Problem while fetching information from the server, probably bad *search_dn*
 - **LDAP_UNK_USER**: User probably wasn't found
-- **LDAP_BAD_BUFF**: The buffer type you selected wasn't found
 
 If so, a field called **error** will be add to the event, with more details about the problem met.
 
