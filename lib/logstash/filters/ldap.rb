@@ -51,6 +51,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     @NOT_FOUND = "LDAP_NOT_FOUND"
 
     # Set up some variables
+
     @attributes_uppercase = @attributes.map(&:upcase)
 
     @search_all_attributes = (@attributes.length == 0)
@@ -66,6 +67,29 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         @logger.warn("Cache utilisation will be disable")
         @use_cache = false
       end
+    end
+
+    # We set-up our ldap connection
+
+    if @use_ssl
+      @ldap = Net::LDAP.new :host => @host,
+      :port => @ldaps_port,
+      :auth => {
+        :method => :simple,
+        :username => @username,
+        :password => @password
+      },
+      :encryption => {
+        :method => :simple_tls
+      }
+    else
+      @ldap = Net::LDAP.new :host => @host,
+      :port => @ldap_port,
+      :auth => {
+        :method => :simple,
+        :username => @username,
+        :password => @password
+      }
     end
   end
 
@@ -95,31 +119,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       # We create the LDAP connection
 
       @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")
-      if use_ssl
-        ldap = Net::LDAP.new :host => @host,
-        :port => @ldaps_port,
-        :auth => {
-          :method => :simple,
-          :username => @username,
-          :password => @password
-        },
-        :encryption => {
-          :method => :simple_tls
-        }
-      else
-        #conn = LDAP::Conn.new(host=@host, port=@ldap_port)
-        ldap = Net::LDAP.new :host => @host,
-        :port => @ldap_port,
-        :auth => {
-          :method => :simple,
-          :username => @username,
-          :password => @password
-        }
-      end
 
       # Then we launch the search
 
-      res, exitstatus = ldapsearch(ldap, identifier_value)
+      res, exitstatus = ldapsearch(identifier_value)
 
       # If we use the cache, then we store result for next searchs
 
@@ -168,7 +171,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   # Search LDAP attributes of the object
 
   private
-  def ldapsearch(ldap, identifier_value)
+  def ldapsearch(identifier_value)
 
     exitstatus = @SUCCESS
     ret = {}
@@ -176,8 +179,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # We check connection state
 
     begin
-      if !ldap.bind()
-        raise(ldap.get_operation_result.error_message)
+      if !@ldap.bind()
+        raise(@ldap.get_operation_result.error_message)
       end
     rescue Exception => err
       @logger.error("Error while setting-up connection with LDPAP server '#{@host}': #{err.message}")
@@ -200,7 +203,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     begin
 
-      ldap.search( :base => treebase, :filter => full_filter, :attributes => @attributes) do |entry|
+      @ldap.search( :base => treebase, :filter => full_filter, :attributes => @attributes) do |entry|
         entry.each do |attribute, values|
           suceed = true
           if @attributes_uppercase.include?(attribute.upcase.to_s) or @search_all_attributes
@@ -209,8 +212,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         end
       end
 
-      if !ldap.get_operation_result.error_message.empty?
-        raise(ldap.get_operation_result.error_message)
+      if !@ldap.get_operation_result.error_message.empty?
+        raise(@ldap.get_operation_result.error_message)
       end
 
     rescue Exception => err
