@@ -389,7 +389,7 @@ describe LogStash::Filters::Ldap do
 
       expect(subject).not_to include('ldap')
 
-      expect(subject.get("tags")).to eq(["LDAP_UNK_USER"])
+      expect(subject.get("tags")).to eq(["LDAP_NOT_FOUND"])
     end
   end
 

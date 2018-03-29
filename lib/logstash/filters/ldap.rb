@@ -48,7 +48,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     @SUCCESS = "LDAP_OK"
     @FAIL_CONN = "LDAP_ERR_CONN"
     @FAIL_FETCH = "LDAP_ERR_FETCH"
-    @UNKNOWN_USER = "LDAP_UNK_USER"
+    @NOT_FOUND = "LDAP_NOT_FOUND"
 
     # We check if cache type selected is valid
 
@@ -217,7 +217,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     if !suceed
       @logger.debug? && @logger.debug("Unable to find informations for element '#{identifier_value}'")
-      exitstatus = "#{@UNKNOWN_USER}"
+      exitstatus = "#{@NOT_FOUND}"
       return ret, exitstatus
     end
 
