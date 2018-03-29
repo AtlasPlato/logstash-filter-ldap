@@ -27,7 +27,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :use_ssl, :validate => :boolean, :required => false, :default => false
 
   config :username, :validate => :string, :required => false
-  config :password, :validate => :string, :required => false
+  config :password, :validate => :password, :required => false
 
   config :search_dn, :validate => :string, :required => true
 
@@ -78,7 +78,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       :auth => {
         :method => :simple,
         :username => @username,
-        :password => @password
+        :password => @password.value
       },
       :encryption => {
         :method => :simple_tls
@@ -89,7 +89,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       :auth => {
         :method => :simple,
         :username => @username,
-        :password => @password
+        :password => @password.value
       }
     end
 
