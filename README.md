@@ -70,7 +70,7 @@ Here is a list of all parameters, with their default value, if any, and their de
 | identifier_key    | string  | no       | "uid"               | Type of the identifier to search                                                                              | "uid"                              |
 | identifier_type   | string  | no       | "posixAccount"      | Object class of the object to search                                                                          | "person"                           |
 | search_dn         | string  | yes       | n/a                 | Domain name in which search inside the ldap database (usually your userdn or groupdn)                                                                 | "dc=example,dc=org" |
-| attributes        | array   | no       | ['givenName', 'sn'] | List of attributes to get                                                                                     | ['region', 'dn', 'mail']           |
+| attributes        | array   | no       | [] | List of attributes to get. If not set, all attributes available will be get                                          | ['givenName', 'sn']           |
 | target            | string  | no       | "ldap"              | Name of the variable you want the result being stocked in                   | "myCustomVariableName"           |
 | host              | string  | yes      | n/a                 | LDAP server host adress                                                                                       | "ldapserveur.com"                  |
 | ldap_port         | number  | no       | 389                 | LDAP server port for non-ssl connection                                                                       | 400                                |

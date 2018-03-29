@@ -30,6 +30,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -62,6 +63,41 @@ describe LogStash::Filters::Ldap do
     end
   end
 
+
+  describe "check simple search without attributes" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          search_dn => "#{@ldap_search_dn}"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('ldap')
+
+      expect(subject.get('ldap')).to include('givenname')
+      expect(subject.get('ldap')).to include('homedirectory')
+      expect(subject.get('ldap')).to include('gecos')
+      expect(subject.get('ldap')).to include('sn')
+
+      expect(subject.get('ldap')).not_to include("error")
+      expect(subject).not_to include('tags')
+
+      expect(subject.get("ldap")["givenname"]).to eq("VALENTIN")
+      expect(subject.get("ldap")["gecos"]).to eq("VALENTIN BOURDIER")
+      expect(subject.get("ldap")["homedirectory"]).to eq("/users/login/u501565")
+      expect(subject.get("ldap")["sn"]).to eq("BOURDIER")
+    end
+  end
+
+
   describe "check simple search with ssl" do
     let(:config) do <<-CONFIG
       filter {
@@ -73,6 +109,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -115,6 +152,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
           use_cache => "true"
         }
       }
@@ -160,6 +198,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -221,6 +260,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -289,6 +329,7 @@ describe LogStash::Filters::Ldap do
           username => "test"
           password => "test"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -318,6 +359,7 @@ describe LogStash::Filters::Ldap do
           ldap_port => "#{@ldap_port}"
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
+          attributes => ['givenName', 'sn']
           search_dn => "test"
         }
       }
@@ -349,6 +391,7 @@ describe LogStash::Filters::Ldap do
           username => "test"
           password => "test"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -379,6 +422,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG
@@ -405,6 +449,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
         }
       }
       CONFIG

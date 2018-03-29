@@ -19,7 +19,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :identifier_type, :validate => :string, :required => false, :default => "posixAccount"
 
   config :target, :validate => :string, :required => false, :default => "ldap"
-  config :attributes, :validate => :array, :required => false, :default => ['givenName', 'sn']
+  config :attributes, :validate => :array, :required => false, :default => []
 
   config :host, :validate => :string, :required => true
   config :ldap_port, :validate => :number, :required => false, :default => 389
