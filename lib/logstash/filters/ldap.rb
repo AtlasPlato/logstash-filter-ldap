@@ -50,6 +50,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     @FAIL_FETCH = "LDAP_ERR_FETCH"
     @NOT_FOUND = "LDAP_NOT_FOUND"
 
+    # Set up some variables
+    @attributes_uppercase = @attributes.map(&:upcase)
+
+    @search_all_attributes = (@attributes.length == 0)
+
     # We check if cache type selected is valid
 
     if @use_cache
@@ -195,12 +200,14 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     begin
 
-      ldap.search( :base => treebase, :filter => full_filter, :attributes => @attributes) { |entry|
+      ldap.search( :base => treebase, :filter => full_filter, :attributes => @attributes) do |entry|
         entry.each do |attribute, values|
           suceed = true
-          ret[attribute] = values.join(" ")
+          if @attributes_uppercase.include?(attribute.upcase.to_s) or @search_all_attributes
+            ret[attribute] = values.join(" ")
+          end
         end
-      }
+      end
 
       if !ldap.get_operation_result.error_message.empty?
         raise(ldap.get_operation_result.error_message)

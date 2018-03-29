@@ -42,6 +42,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).to include('givenname')
       expect(subject.get('ldap')).to include('sn')
 
+      expect(subject.get('ldap')).not_to include("dn")
       expect(subject.get('ldap')).not_to include("error")
       expect(subject).not_to include('tags')
 
