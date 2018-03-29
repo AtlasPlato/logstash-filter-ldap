@@ -36,6 +36,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :cache_memory_duration, :validate => :number, :required => false, :default => 300
   config :cache_memory_size, :validate => :number, :required => false, :default => 20000
 
+  config :enable_error_logging, :validate => :boolean, :required => false, :default => false
+
 
   # Equivalent to 'initialize' method
 
@@ -214,7 +216,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     rescue Exception => err
       @logger.error("Error while searching informations: #{err.message}")
-      ret["error"] = err.message
+      @enable_error_logging && ret["error"] = err.message
       exitstatus  = @FAIL_PROCESSING
       return ret, exitstatus
     end

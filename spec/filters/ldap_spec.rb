@@ -230,6 +230,7 @@ describe LogStash::Filters::Ldap do
           username => "#{@ldap_username}"
           password => "#{@ldap_password}"
           search_dn => "#{@ldap_search_dn}"
+          enable_error_logging => true
         }
       }
       CONFIG
@@ -331,6 +332,7 @@ describe LogStash::Filters::Ldap do
           password => "test"
           search_dn => "#{@ldap_search_dn}"
           attributes => ['givenName', 'sn']
+          enable_error_logging => true
         }
       }
       CONFIG
@@ -351,6 +353,32 @@ describe LogStash::Filters::Ldap do
   end
 
 
+  describe "check bad ldap host without error logging" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "babdsfafds.org"
+          ldap_port => "#{@ldap_port}"
+          username => "test"
+          password => "test"
+          search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).to include('tags')
+
+      expect(subject).not_to include('ldap')
+
+      expect(subject.get("tags")).to eq(["LDAP_ERROR"])
+    end
+  end
+
+
   describe "test bad search_dn" do
     let(:config) do <<-CONFIG
       filter {
@@ -362,6 +390,7 @@ describe LogStash::Filters::Ldap do
           password => "#{@ldap_password}"
           attributes => ['givenName', 'sn']
           search_dn => "test"
+          enable_error_logging => true
         }
       }
       CONFIG
@@ -393,6 +422,7 @@ describe LogStash::Filters::Ldap do
           password => "test"
           search_dn => "#{@ldap_search_dn}"
           attributes => ['givenName', 'sn']
+          enable_error_logging => true
         }
       }
       CONFIG
