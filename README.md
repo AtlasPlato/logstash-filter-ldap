@@ -11,8 +11,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 **logstash-filter-ldap** filter will add to the event event fields specifield from a ldap server, with the informations specifieds. Fields will be stored in a variable called **target**, that you can modify in the configuration file
 
 If there are no error during process, than no error tag is set ; otherwise, there could have been, in the **tags** array :
-- **LDAP_ERR_CONN**: Problem while connecting to the server : bad *host, port, username or password*
-- **LDAP_ERR_FETCH**: Problem while fetching information from the server, probably bad *search_dn*
+- **LDAP_ERROR**: Problem while connecting to the server : bad *host, port, username, password, or search_dn* -> Check the error message and your configuration
 - **LDAP_NOT_FOUND**: Object wasn't found
 
 If so, a field called **error** will be add to the event, with more details about the problem met.

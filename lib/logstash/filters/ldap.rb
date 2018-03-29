@@ -46,8 +46,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     # Setting up some flags
 
     @SUCCESS = "LDAP_OK"
-    @FAIL_CONN = "LDAP_ERR_CONN"
-    @FAIL_FETCH = "LDAP_ERR_FETCH"
+    @FAIL_PROCESSING = "LDAP_ERROR"
     @NOT_FOUND = "LDAP_NOT_FOUND"
 
     # Set up some variables
@@ -90,6 +89,16 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         :username => @username,
         :password => @password
       }
+    end
+
+    # We check state of the connection
+
+    begin
+      if !@ldap.bind()
+        raise(@ldap.get_operation_result.error_message)
+      end
+    rescue Exception => err
+      @logger.error("Error while setting-up connection with LDAP server '#{@host}': #{err.message}")
     end
   end
 
@@ -176,23 +185,10 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     exitstatus = @SUCCESS
     ret = {}
 
-    # We check connection state
-
-    begin
-      if !@ldap.bind()
-        raise(@ldap.get_operation_result.error_message)
-      end
-    rescue Exception => err
-      @logger.error("Error while setting-up connection with LDPAP server '#{@host}': #{err.message}")
-      ret["error"] = err.message
-      exitstatus  = @FAIL_CONN
-      return ret, exitstatus
-    end
-
     # We create search parameters
 
-    object_type_filter = Net::LDAP::Filter.eq("objectclass", "#{@identifier_type}")
-    identifier_filter = Net::LDAP::Filter.eq("#{@identifier_key}", "#{identifier_value}")
+    object_type_filter = Net::LDAP::Filter.eq("objectclass", @identifier_type)
+    identifier_filter = Net::LDAP::Filter.eq(@identifier_key, "#{identifier_value}")
 
     full_filter = Net::LDAP::Filter.join(identifier_filter, object_type_filter)
     treebase = @search_dn
@@ -219,7 +215,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     rescue Exception => err
       @logger.error("Error while searching informations: #{err.message}")
       ret["error"] = err.message
-      exitstatus  = @FAIL_FETCH
+      exitstatus  = @FAIL_PROCESSING
       return ret, exitstatus
     end
 
@@ -227,7 +223,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     if !suceed
       @logger.debug? && @logger.debug("Unable to find informations for element '#{identifier_value}'")
-      exitstatus = "#{@NOT_FOUND}"
+      exitstatus = @NOT_FOUND
       return ret, exitstatus
     end
 

@@ -244,7 +244,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('givenname')
       expect(subject.get('ldap')).not_to include('sn')
 
-      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("tags")).to eq(["LDAP_ERROR"])
       expect(subject.get("ldap")["error"]).to match("Connection refused -+*")
     end
   end
@@ -345,7 +345,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('givenname')
       expect(subject.get('ldap')).not_to include('sn')
 
-      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("tags")).to eq(["LDAP_ERROR"])
       expect(subject.get("ldap")["error"]).to eq("initialize: name or service not known")
     end
   end
@@ -376,7 +376,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('givenname')
       expect(subject.get('ldap')).not_to include('sn')
 
-      expect(subject.get("tags")).to eq(["LDAP_ERR_FETCH"])
+      expect(subject.get("tags")).to eq(["LDAP_ERROR"])
       expect(subject.get("ldap")["error"]).to eq("invalid DN")
     end
   end
@@ -407,7 +407,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('givenname')
       expect(subject.get('ldap')).not_to include('sn')
 
-      expect(subject.get("tags")).to eq(["LDAP_ERR_CONN"])
+      expect(subject.get("tags")).to eq(["LDAP_ERROR"])
       expect(subject.get("ldap")["error"]).to eq("invalid DN")
     end
   end
