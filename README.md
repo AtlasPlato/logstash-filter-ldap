@@ -127,6 +127,19 @@ $ bundle exec rspec
 $ gem build logstash-filter-ldap.gemspec
 ```
 
+### Behind a proxy
+
+If you are behind a proxy, such a corporate proxy, here are the steps :
+- Export your proxy settings : Your need to set-up those environment variables (even on Windows !) :
+  - **http_proxy** (eg. http_proxy="http://192.168.0.2:3128/")
+  - **https_proxy** (eg. https_proxy="http://192.168.0.2:3128/")
+  - **no_proxy** (eg. no_proxy="localhost,127.0.0.1,.example.com")
+- Install the Vagrant [proxyconf](https://github.com/tmatilai/vagrant-proxyconf) plugin :
+  > vagrant plugin install vagrant-proxyconf
+
+And that's all, all should work !
+
+
 ## Thanks for
 
 This plugin was strongly inspired by the [logstash_filter_LDAPresolve](https://github.com/EricDeveaud/logstash_filter_LDAPresolve), made by [EricDeveaud](https://github.com/EricDeveaud)

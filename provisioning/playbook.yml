@@ -23,7 +23,7 @@
   roles:
     - system-utils
 
-# Install Logstash
+# Install requirements
 
 - name: Launching Logstash install role
   hosts: dev-logstash
@@ -34,5 +34,15 @@
         - "{{ rubies_version }}"
       rvm1_default_ruby_version: "{{ default_ruby_version }}"
       rvm1_user: 'vagrant'
-    - angstwad.docker_ubuntu
+    - role: angstwad.docker_ubuntu
+      docker_http_proxy: "{{ http_proxy }}"
+      docker_https_proxy: "{{ https_proxy }}"
+      docker_no_proxy: "{{ no_proxy }}"
+
+# Install Logstash
+
+- name: Launching Logstash install role
+  hosts: dev-logstash
+  become: true
+  roles:
     - ldap-server

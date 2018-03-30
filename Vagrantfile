@@ -13,6 +13,13 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    config.proxy.http     = ENV["http_proxy"]
+    config.proxy.https    = ENV["https_proxy"]
+    config.proxy.no_proxy = ENV["no_proxy"]
+    config.proxy.enabled = { docker: false }
+  end
+
   config.vm.provision "ansible_local" do |ansible|
     ansible.provisioning_path = "/vagrant/provisioning"
     ansible.playbook = "playbook.yml"
@@ -25,7 +32,10 @@ Vagrant.configure("2") do |config|
       rubies_version: [
         "jruby-1.7.27",
         "jruby-9.1.13.0"
-      ]
+      ],
+      http_proxy: ENV["http_proxy"],
+      https_proxy: ENV["https_proxy"],
+      no_proxy: ENV["no_proxy"]
     }
   end
 

@@ -1,4 +1,18 @@
 ---
+- name: Create the maven data directory
+  become: false
+  file:
+    path: "${HOME}/.m2/"
+    state: directory
+  when: http_proxy is defined and http_proxy != ""
+
+- name: Deploy the maven config file if proxy is set
+  become: false
+  template:
+    src: settings.xml
+    dest: "${HOME}/.m2/settings.xml"
+  when: http_proxy is defined and http_proxy != ""
+
 - name: Install depedencies
   apt:
     name: "{{ item }}"

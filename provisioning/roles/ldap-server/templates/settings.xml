@@ -1,0 +1,14 @@
+<settings>
+  <proxies>
+      <proxy>
+      <id>my-proxy</id>
+      <active>true</active>
+      <protocol>{{ http_proxy | urlsplit('scheme') }}</protocol>
+      <username>{{ http_proxy | urlsplit('username') }}</username>
+      <password>{{ http_proxy | urlsplit('password') }}</password>
+      <host>{{ http_proxy | urlsplit('hostname') }}</host>
+      <port>{{ http_proxy | urlsplit('port') }}</port>
+      <nonProxyHosts>{{ no_proxy | default("127.0.0.1,localhost", true) }}</nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>
