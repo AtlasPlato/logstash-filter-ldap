@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
       "dev-logstash" => ["logstash-filter-ldap"]
     }
     ansible.extra_vars = {
-      rvm1_default_ruby_version: "jruby-1.7.27",
+      rvm1_default_ruby_version: "jruby-9.1.13.0",
       rubies_version: [
         "jruby-1.7.27",
         "jruby-9.1.13.0"
