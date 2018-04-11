@@ -22,7 +22,7 @@ If so, a field called **error** will be add to the event, with more details abou
 
 #### Input evenement
 
-```
+```ruby
 {
     "@timestamp" => 2018-02-25T10:04:22.338Z,
     "@version" => "1",
@@ -32,7 +32,7 @@ If so, a field called **error** will be add to the event, with more details abou
 
 #### Logstash filter
 
-```
+```ruby
 filter {
   ldap {
     identifier_value => "%{myUid}"
@@ -47,7 +47,7 @@ filter {
 
 #### Output evenement
 
-```
+```ruby
 {
     "@timestamp" => 2018-02-25T10:04:22.338Z,
     "@version" => "1",
