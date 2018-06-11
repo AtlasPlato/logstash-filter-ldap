@@ -1,4 +1,4 @@
 - src: rvm_io.ruby
   version: v2.0.1
 - src: angstwad.docker_ubuntu
-  version: v3.4.2
+  version: v3.4.7

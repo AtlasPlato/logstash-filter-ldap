@@ -13,9 +13,6 @@
     dest: "${HOME}/.m2/settings.xml"
   when: http_proxy is not none and http_proxy is defined and http_proxy != ""
 
-- debug:
-    var: http_proxy
-
 - name: Install depedencies
   apt:
     name: "{{ item }}"
@@ -32,7 +29,7 @@
 - name: Re-create the open-ldap container
   docker_container:
     name: my-openldap-container
-    image: osixia/openldap:1.1.11
+    image: osixia/openldap:1.2.1
     state: started
     recreate: true
     published_ports:
