@@ -8,7 +8,7 @@ env:
   global:
     - ldap_host="localhost"
     - ldap_port="389"
-    - ldaps_port="1234"
+    - ldaps_port="636"
     - ldap_username="cn=admin,dc=example,dc=org"
     - ldap_password="admin"
     - ldap_search_dn="dc=example,dc=org"
@@ -34,7 +34,7 @@ addons:
     - ldap-utils
 before_install:
   - docker pull osixia/openldap:1.1.11
-  - docker run --name my-openldap-container -p 389:389 -p 1234:636 -e "LDAP_TLS_VERIFY_CLIENT=allow" --detach osixia/openldap:1.2.1
+  - docker run --name my-openldap-container -p 389:389 -p 636:636 -e "LDAP_TLS_VERIFY_CLIENT=allow" --detach osixia/openldap:1.2.1
   - sleep 10
   - ldapadd -x -h localhost -p 389 -D "cn=admin,dc=example,dc=org" -w admin -f ci/ldif/base.ldif
 script: ci/build.sh
