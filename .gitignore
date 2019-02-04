@@ -11,7 +11,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 
 *.retry
 
-/provisioning/roles/rvm_io.ruby
+/provisioning/roles/rvm.ruby
 /provisioning/roles/angstwad.docker_ubuntu
 
 #############

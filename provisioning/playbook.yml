@@ -29,7 +29,7 @@
   hosts: dev-logstash
   become: true
   roles:
-    - role: rvm_io.ruby
+    - role: rvm.ruby
       rvm1_rubies:
         - "{{ rubies_version }}"
       rvm1_default_ruby_version: "{{ default_ruby_version }}"
