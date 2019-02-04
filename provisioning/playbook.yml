@@ -25,7 +25,7 @@
 
 # Install requirements
 
-- name: Launching Logstash install role
+- name: Installing jruby
   hosts: dev-logstash
   become: true
   roles:
@@ -34,6 +34,16 @@
         - "{{ rubies_version }}"
       rvm1_default_ruby_version: "{{ default_ruby_version }}"
       rvm1_user: 'vagrant'
+      rvm1_bundler_install: False
+  post_tasks:
+    - name: Install bundler
+      become: false
+      shell: gem install bundler -v '< 2'
+
+- name: Installing Ubuntu
+  hosts: dev-logstash
+  become: true
+  roles:
     - role: angstwad.docker_ubuntu
       docker_http_proxy: "{{ http_proxy }}"
       docker_https_proxy: "{{ https_proxy }}"
