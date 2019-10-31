@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-filter-ldap'
-  s.version       = '0.2.1'
+  s.version       = '0.2.2'
   s.licenses      = ['Apache License (2.0)']
   s.summary       = 'Logstash filter to get LDAP or LDAPs informations.'
   s.description   = 'This is a Logstash''s filter plugin to fetch LDAP informations. Do not use it standalone.'

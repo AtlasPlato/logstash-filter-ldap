@@ -5,3 +5,5 @@
 ## 0.2.1
   - Changed library for ldap queries
   - Fixed bugs concerning LDAPs connections
+## 0.2.2
+  - Added a no_tag_on_failure option
