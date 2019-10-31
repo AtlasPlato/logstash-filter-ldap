@@ -442,6 +442,28 @@ describe LogStash::Filters::Ldap do
     end
   end
 
+  describe "test bad user/password couple & no_tag" do
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "test"
+          password => "test"
+          search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
+          no_tag_on_failure => true
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+      expect(subject).not_to include('ldap')
+      expect(subject).not_to include('tags')
+    end
+  end
 
   describe "check bad identifier user" do
     let(:config) do <<-CONFIG

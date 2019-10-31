@@ -37,6 +37,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :cache_memory_size, :validate => :number, :required => false, :default => 20000
 
   config :enable_error_logging, :validate => :boolean, :required => false, :default => false
+  config :no_tag_on_failure, :validate => :boolean, :required => false, :default => false
 
 
   # Equivalent to 'initialize' method
@@ -156,7 +157,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     # If there was a problem, we set the tag associated
 
-    if !exitstatus.nil? && exitstatus != @SUCCESS
+    if !no_tag_on_failure && !exitstatus.nil? && exitstatus != @SUCCESS
       if event.get("tags")
         event.set("tags", event.get("tags") << exitstatus)
       else
