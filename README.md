@@ -126,6 +126,11 @@ $ bundle exec rspec
 
 # Build the Gemfile
 $ gem build logstash-filter-ldap.gemspec
+
+# Generate the offline-archive
+# You need to install the Logstash yourself
+$LOGSTASH_HOME/bin/logstash-plugin install --no-verify logstash-filter-ldap-X.X.X.gem
+$LOGSTASH_HOME/bin/logstash-plugin prepare-offline-pack logstash-filter-ldap
 ```
 
 ### Behind a proxy
