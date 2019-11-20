@@ -58,7 +58,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     @search_all_attributes = (@attributes.length == 0)
 
-    # We check if cache type selected is valid
+    # Check if cache type selected is valid
 
     if @use_cache
       if @cache_type == "memory"
@@ -71,7 +71,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       end
     end
 
-    # We setup our ldap connection
+    # Setup ldap connection
 
     if @use_ssl
       @ldap = Net::LDAP.new :host => @host,
@@ -94,7 +94,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       }
     end
 
-    # We check the state of the connection
+    # Check the state of the connection
 
     begin
       if !@ldap.bind()
@@ -105,45 +105,48 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     end
   end
 
-  # This function will be called each time an event should be processed
+  # This function is called each time an event should be processed
 
   public
   def filter(event)
 
-    # We get the identifier, and create hash from it
-
+    # Get the identifier
     identifier_value = event.sprintf(@identifier_value)
-    identifier_hash = hashIdentifier(@host, @port, @identifier_key, identifier_value)
 
-    # We check if the cache is required
-
+    # Check if the cache is required
     cached = false
+
     if @use_cache
+
+      # Check if the identifier is cached already via it's hash value
+      identifier_hash = hashIdentifier(@host, @port, @identifier_key, identifier_value)
+
       cached = @Buffer.cached?(identifier_hash)
-    end
 
-    if cached
-      # If cached, we get it
+      if cached
 
-      res = @Buffer.get(identifier_hash)
-    else
-      # We create the LDAP connection
+        # If cached, get it
+        res = @Buffer.get(identifier_hash)
+      else
 
-      @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")
+        # Create the LDAP connection and launch the request
+        @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")
 
-      # Then we launch the search
+        res, exitstatus = ldapsearch(identifier_value)
 
-      res, exitstatus = ldapsearch(identifier_value)
-
-      # If we use the cache, then we store the result for futher use
-
-      if @use_cache
+        # Store the result for futher use
         @Buffer.cache(identifier_hash, res)
       end
 
+    else
+
+      # Create the LDAP connection and launch the request
+      @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")
+
+      res, exitstatus = ldapsearch(identifier_value)
     end
 
-    # Then we add result fetched from the database into current event
+    # Add the result fetched from the database into current event
 
     res.each{|key, value|
       targetArray = event.get(@target)
@@ -154,7 +157,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       event.set(@target, targetArray)
     }
 
-    # If there is a problem, we set the tag associated
+    # If there is a problem, set the tag associated if needed
 
     if !no_tag_on_failure && !exitstatus.nil? && exitstatus != @SUCCESS
       if event.get("tags")
@@ -187,7 +190,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     exitstatus = @SUCCESS
     ret = {}
 
-    # We create the request parameters
+    # Create the request parameters
 
     object_type_filter = Net::LDAP::Filter.eq("objectclass", @identifier_type)
     identifier_filter = Net::LDAP::Filter.eq(@identifier_key, "#{identifier_value}")
@@ -195,7 +198,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     full_filter = Net::LDAP::Filter.join(identifier_filter, object_type_filter)
     treebase = @search_dn
 
-    # We launch the request
+    # Launch the request
 
     suceed = false
 
@@ -221,7 +224,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       return ret, exitstatus
     end
 
-    # If not, it's probably because we didn't found the object
+    # If not, it's probably because the object don't exist
 
     if !suceed
       @logger.debug? && @logger.debug("Unable to find informations for element '#{identifier_value}'")
