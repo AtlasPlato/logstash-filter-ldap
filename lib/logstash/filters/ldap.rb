@@ -46,13 +46,13 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   def register
     require 'net/ldap'
 
-    # Setting up some flags
+    # Setup some flags
 
     @SUCCESS = "LDAP_OK"
     @FAIL_PROCESSING = "LDAP_ERROR"
     @NOT_FOUND = "LDAP_NOT_FOUND"
 
-    # Set up some variables
+    # Setup some variables
 
     @attributes_uppercase = @attributes.map(&:upcase)
 
@@ -71,7 +71,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       end
     end
 
-    # We set-up our ldap connection
+    # We setup our ldap connection
 
     if @use_ssl
       @ldap = Net::LDAP.new :host => @host,
@@ -94,7 +94,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       }
     end
 
-    # We check state of the connection
+    # We check the state of the connection
 
     begin
       if !@ldap.bind()
@@ -105,8 +105,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     end
   end
 
-  # This function permet to treat an event, and will be called each time
-  # an event should be processing
+  # This function will be called each time an event should be processed
 
   public
   def filter(event)
@@ -116,7 +115,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     identifier_value = event.sprintf(@identifier_value)
     identifier_hash = hashIdentifier(@host, @port, @identifier_key, identifier_value)
 
-    # We check if it is cache
+    # We check if the cache is required
 
     cached = false
     if @use_cache
@@ -136,7 +135,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
       res, exitstatus = ldapsearch(identifier_value)
 
-      # If we use the cache, then we store result for next searchs
+      # If we use the cache, then we store the result for futher use
 
       if @use_cache
         @Buffer.cache(identifier_hash, res)
@@ -144,7 +143,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     end
 
-    # Then we add result fetched from the database into current evenement
+    # Then we add result fetched from the database into current event
 
     res.each{|key, value|
       targetArray = event.get(@target)
@@ -155,7 +154,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       event.set(@target, targetArray)
     }
 
-    # If there was a problem, we set the tag associated
+    # If there is a problem, we set the tag associated
 
     if !no_tag_on_failure && !exitstatus.nil? && exitstatus != @SUCCESS
       if event.get("tags")
@@ -168,7 +167,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     filter_matched(event)
   end
 
-  # Permet to create an unique hash for an value, to store it into the buffer
+  # Create an unique hash for an event
 
   private
   def hashIdentifier(host, port, identifier_key, identifier_value)
@@ -188,7 +187,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     exitstatus = @SUCCESS
     ret = {}
 
-    # We create search parameters
+    # We create the request parameters
 
     object_type_filter = Net::LDAP::Filter.eq("objectclass", @identifier_type)
     identifier_filter = Net::LDAP::Filter.eq(@identifier_key, "#{identifier_value}")
@@ -196,7 +195,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
     full_filter = Net::LDAP::Filter.join(identifier_filter, object_type_filter)
     treebase = @search_dn
 
-    # We launch the search
+    # We launch the request
 
     suceed = false
 
@@ -232,6 +231,5 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
     return ret, exitstatus
   end
-
 
 end
