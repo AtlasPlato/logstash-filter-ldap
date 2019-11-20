@@ -7,3 +7,5 @@
   - Fixed bugs concerning LDAPs connections
 ## 0.2.2
   - Added a no_tag_on_failure option
+## Not released yet
+  - avoid hash computation if the cache is not required
