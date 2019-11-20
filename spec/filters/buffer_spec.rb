@@ -102,19 +102,6 @@ describe "Test memory buffer" do
     expect(@default_content2).to eq(content)
   end
 
-
-  it "check cache limit" do
-    (1..@cache_memory_size).each do |n|
-      expect(@buffer.cache(n.to_s, @default_content)).to eq(true)
-      expect(@buffer.cached?(n.to_s)).to eq(true)
-      content = @buffer.get(n.to_s)
-      expect(@default_content).to eq(content)
-    end
-    expect(@buffer.cache((@cache_memory_size + 1).to_s, @default_content)).to eq(false)
-    expect(@buffer.cached?((@cache_memory_size + 1).to_s)).to eq(false)
-  end
-
-
   it "test cache timeout" do
     # Hash shouldn't be in cache
     expect(@buffer.cached?(@default_hash)).to eq(false)

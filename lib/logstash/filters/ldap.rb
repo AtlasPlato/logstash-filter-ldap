@@ -31,7 +31,7 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   config :search_dn, :validate => :string, :required => true
 
-  config :use_cache, :validate => :boolean, :required => false, :default => false
+  config :use_cache, :validate => :boolean, :required => false, :default => true
   config :cache_type, :validate => :string, :required => false, :default => "memory"
   config :cache_memory_duration, :validate => :number, :required => false, :default => 300
   config :cache_memory_size, :validate => :number, :required => false, :default => 20000
