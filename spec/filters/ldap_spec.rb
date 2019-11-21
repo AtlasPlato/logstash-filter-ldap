@@ -64,6 +64,38 @@ describe LogStash::Filters::Ldap do
     end
   end
 
+  describe "check simple search with persistant cache" do
+
+    cache_path = "/tmp/test_cache"
+    File.delete(cache_path) if File.exist?(cache_path)
+
+    let(:config) do <<-CONFIG
+      filter {
+        ldap {
+          identifier_value => "u501565"
+          host => "#{@ldap_host}"
+          ldap_port => "#{@ldap_port}"
+          username => "#{@ldap_username}"
+          password => "#{@ldap_password}"
+          search_dn => "#{@ldap_search_dn}"
+          attributes => ['givenName', 'sn']
+          use_cache => true
+          disk_cache_filepath => "#{@cache_path}"
+          disk_cache_schedule => "1"
+        }
+      }
+      CONFIG
+    end
+
+    sample("test" => "test" ) do
+    end
+
+    sample("test" => "test" ) do
+      sleep(5)
+      expect(Pathname(cache_path).exist?).to eq(true)
+    end
+
+  end
 
   describe "check simple search without attributes" do
     let(:config) do <<-CONFIG

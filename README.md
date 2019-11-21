@@ -85,6 +85,8 @@ Here is a list of all parameters, with their default value, if any, and their de
 | cache_type            | string  | no       | "memory"       | Type of buffer to use. Currently, only one is available, "memory" buffer                                      | "memory"                           |
 | cache_memory_duration | number  | no       | 300            | Cache duration (in s) before refreshing values of it                                                          | 3600                               |
 | cache_memory_size     | number  | no       | 20000          | Number of object max that the buffer can contains                                                             | 100                                |
+| disk_cache_filepath   | string  | no       | nil            | Where the cache will periodically be dumped                                                                     | "/tmp/my-memory-backup"            |
+| disk_cache_schedule   | string  | no       | 10m            | Cron period of when the dump of the cache should occured. See [here](https://github.com/floraison/fugit) for the syntax.                           | "10m", "1h", "every day at five", "3h10m"          |
 
 ## Buffer
 
@@ -100,8 +102,21 @@ You can enable / disable use of buffer with the option **use_cache**.
 ### Memory Buffer
 
 This buffer **store** data fetched from the LDAP server **in RAM**, and can be configured with two parameters:
-- cache_memory_duration: duration (in s) before a cache entry is refreshed if hit.
-- cache_memory_size: number of tuple (identifier, attributes) that the buffer can contains.
+- *cache_memory_duration*: duration (in s) before a cache entry is refreshed if hit.
+- *cache_memory_size*: number of tuple (identifier, attributes) that the buffer can contains.
+
+Older cache values than your TTL will be removed from cache.
+
+## Persistant cache buffer
+
+For the only buffer for now, you will be able to save it to disk periodically.
+
+Some specificities :
+  - for *the memory cache*, TTL will be reset
+
+Two parameters are required: 
+  - *disk_cache_filepath*: path on disk of this backup
+  - *disk_cache_schedule*: schedule (every X time unit) of this backup. Please check [here](https://github.com/floraison/fugit) for the syntax of this parameter. 
 
 ## Development
 

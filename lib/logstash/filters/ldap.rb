@@ -6,10 +6,10 @@ require "logstash/namespace"
 require 'digest/md5'
 
 require 'net/ldap'
+require 'rufus-scheduler'
 
 require_relative "buffer/cache_saver"
 require_relative "buffer/memory_cache"
-
 
 class LogStash::Filters::Ldap < LogStash::Filters::Base
 
@@ -38,6 +38,9 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
   config :cache_type, :validate => :string, :required => false, :default => "memory"
   config :cache_memory_duration, :validate => :number, :required => false, :default => 300
   config :cache_memory_size, :validate => :number, :required => false, :default => 20000
+
+  config :disk_cache_filepath, :validate => :string, :required => false, :default => nil
+  config :disk_cache_schedule, :validate => :string, :required => false, :default => "10m"
 
   config :enable_error_logging, :validate => :boolean, :required => false, :default => false
   config :no_tag_on_failure, :validate => :boolean, :required => false, :default => false
@@ -70,6 +73,38 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         @logger.warn("Unknown cache type: #{@cache_type}")
         @logger.warn("Cache utilisation will be disable")
         @use_cache = false
+      end
+    end
+
+    # Set-up of persitant cache
+
+    if @use_cache and !disk_cache_filepath.nil?
+      @logger.info("Cache persistance on disk is enabled")
+      @disk_cache = CacheSaver.new(@disk_cache_filepath)
+
+      # We load data if any
+      succeed, data, error = @disk_cache.load()
+
+      if succeed
+        @Buffer.from_obj(data)
+        @logger.info("Successfully loaded cache")
+      else
+        @logger.warn("Failed to load cache : #{error}")
+      end
+
+      # We start scheduling save of the cache
+      begin
+        scheduler.every @disk_cache_schedule do
+          data = @Buffer.to_obj()
+          succeed, error = @disk_cache.save(data)
+          if succeed
+            @logger.info("Successfully saved cache")
+          else
+            @logger.info("Failed to persist cache on disk : #{error}")
+          end
+        end
+      rescue => e
+        @logger.warn("Failed to persist cache on disk: #{e.message}")
       end
     end
 
