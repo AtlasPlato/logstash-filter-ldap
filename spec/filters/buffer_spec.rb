@@ -9,6 +9,7 @@ describe "Test memory buffer" do
     @cache_memory_size = 10
     @buffer = MemoryCache.new(@cache_memory_duration, @cache_memory_size)
     @default_hash ="abc"
+    @default_hash2 ="abcde"
     @default_content = { test_value: "b", fds: "a" }
     @default_content2 = { test_value: "b", fds: "ab", cd: "/root" }
   end
@@ -97,6 +98,58 @@ describe "Test memory buffer" do
 
     # Hash shouldn't be in anymore
     expect(@buffer.get(@default_hash)).to be_nil
+  end
+
+  it "export to obj without data" do
+    data = @buffer.to_obj()
+    expect(data).to eq([])
+  end
+  
+  it "export to obj with data" do
+    @buffer.cache(@default_hash, @default_content)
+    data = @buffer.to_obj()
+    expect(data.length()).to be(1)
+
+    key, value = data[0]
+    expect(key).to eq(@default_hash)
+    expect(value).to eq(@default_content)
+  end
+
+  it "load from object without initial data" do
+    @buffer.cache(@default_hash, @default_content)
+    data = @buffer.to_obj()
+
+    @buffer2 = MemoryCache.new(@cache_memory_duration, @cache_memory_size)
+    @buffer2.from_obj(data)
+    data2 = @buffer2.to_obj()
+
+    expect(data).to eq(data2)
+    expect(@buffer2.get(@default_hash)).to eq(@default_content)
+  end
+
+  it "load from object with initial data" do
+    @buffer.cache(@default_hash, @default_content)
+    data = @buffer.to_obj()
+
+    @buffer2 = MemoryCache.new(@cache_memory_duration, @cache_memory_size)
+    @buffer2.cache(@default_hash2, @default_content2)
+    @buffer2.from_obj(data)
+    data2 = @buffer2.to_obj()
+
+    expect(data).to eq(data2)
+    expect(@buffer2.get(@default_hash)).to eq(@default_content)
+    expect(@buffer2.get(@default_hash2)).to be_nil
+  end
+
+  it "load without anything in the cache" do
+    data = @buffer.to_obj()
+    
+    @buffer2 = MemoryCache.new(@cache_memory_duration, @cache_memory_size)
+    @buffer2.from_obj(data)
+    data2 = @buffer2.to_obj()
+
+    expect(data).to eq(data2)
+    expect(data2.length()).to be(0)
   end
 
 end

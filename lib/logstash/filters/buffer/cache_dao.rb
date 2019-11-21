@@ -12,4 +12,14 @@ class CacheDAO
     raise('Not implemented')
   end
 
+  public
+  def to_obj()
+    raise('Not implemented')
+  end
+
+  public
+  def from_obj(obj)
+    raise('Not implemented')
+  end
+
 end

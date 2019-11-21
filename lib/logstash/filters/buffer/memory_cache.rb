@@ -21,4 +21,17 @@ class MemoryCache < CacheDAO
     return @cache[identifier]
   end
 
+  public
+  def to_obj()
+    return @cache.to_a
+  end
+
+  public
+  def from_obj(obj)
+    @cache.clear
+    obj.each {|key, value|
+      @cache[key] = value
+    }
+  end
+
 end
