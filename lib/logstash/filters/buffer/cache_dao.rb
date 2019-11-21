@@ -3,11 +3,6 @@
 class CacheDAO
 
   public
-  def cached?(identifier)
-    raise('Not implemented')
-  end
-
-  public
   def cache(identifier, hash)
     raise('Not implemented')
   end

@@ -1,8 +1,6 @@
 # encoding: utf-8
-
 require_relative '../spec_helper'
 require "logstash/filters/ldap"
-
 
 describe "Test memory buffer" do
 
@@ -18,19 +16,16 @@ describe "Test memory buffer" do
 
   it "set data recuperation without set value" do
     # Hash shouldn't be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
   end
 
 
   it "simple data recuperation work" do
     # Hash shouldn't be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
 
     # Cache the value
     expect(@buffer.cache(@default_hash, @default_content)).to eq(true)
-
-    # Hash should be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(true)
 
     # Get the cached value
     content = @buffer.get(@default_hash)
@@ -42,13 +37,10 @@ describe "Test memory buffer" do
 
   it "test value update without cache expiration" do
     # Hash shouldn't be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
 
     # Cache the value
     expect(@buffer.cache(@default_hash, @default_content)).to eq(true)
-
-    # Hash should be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(true)
 
     # Get the cached value
     content = @buffer.get(@default_hash)
@@ -58,9 +50,6 @@ describe "Test memory buffer" do
 
     # Cache the new value
     expect(@buffer.cache(@default_hash, @default_content2)).to eq(true)
-
-    # Hash should be in cache, with its new value
-    expect(@buffer.cached?(@default_hash)).to eq(true)
 
     # Get the cached value
     content = @buffer.get(@default_hash)
@@ -72,13 +61,10 @@ describe "Test memory buffer" do
 
   it "test value update with cache expiration" do
     # Hash shouldn't be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
 
     # Cache the value
     expect(@buffer.cache(@default_hash, @default_content)).to eq(true)
-
-    # Hash should be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(true)
 
     # Get the cached value
     content = @buffer.get(@default_hash)
@@ -92,9 +78,6 @@ describe "Test memory buffer" do
     # Cache the new value
     expect(@buffer.cache(@default_hash, @default_content2)).to eq(true)
 
-    # Hash should be in cache, with its new value
-    expect(@buffer.cached?(@default_hash)).to eq(true)
-
     # Get the cached value
     content = @buffer.get(@default_hash)
 
@@ -104,7 +87,7 @@ describe "Test memory buffer" do
 
   it "test cache timeout" do
     # Hash shouldn't be in cache
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
 
     # Cache the value
     expect(@buffer.cache(@default_hash, @default_content)).to eq(true)
@@ -113,7 +96,7 @@ describe "Test memory buffer" do
     sleep(@cache_memory_duration + 1)
 
     # Hash shouldn't be in anymore
-    expect(@buffer.cached?(@default_hash)).to eq(false)
+    expect(@buffer.get(@default_hash)).to be_nil
   end
 
 end
