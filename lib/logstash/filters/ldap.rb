@@ -121,13 +121,11 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
       # Check if the identifier is cached already via it's hash value
       identifier_hash = hashIdentifier(@host, @port, @identifier_key, identifier_value)
 
-      cached = @Buffer.cached?(identifier_hash)
+      # Get the cache result
+      res = @Buffer.get(identifier_hash)
 
-      if cached
-
-        # If cached, get it
-        res = @Buffer.get(identifier_hash)
-      else
+      # If nothing is in the cache
+      if res.nil?
 
         # Create the LDAP connection and launch the request
         @logger.debug? && @logger.debug("Search for LDAP '#{identifier_value}' element")

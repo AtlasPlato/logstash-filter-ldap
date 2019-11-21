@@ -11,11 +11,6 @@ class MemoryCache < CacheDAO
   end
 
   public
-  def cached?(identifier)
-    return @cache.key?(identifier)
-  end
-
-  public
   def cache(identifier, hash)
     @cache[identifier] = hash
     return true
