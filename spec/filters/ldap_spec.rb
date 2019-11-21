@@ -246,7 +246,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERROR"])
-      expect(subject.get("ldap")["error"]).to match("Connection refused -+*")
+      expect(subject.get("ldap")["error"]).to match("Bad file descriptor - No message available")
     end
   end
 
@@ -348,7 +348,7 @@ describe LogStash::Filters::Ldap do
       expect(subject.get('ldap')).not_to include('sn')
 
       expect(subject.get("tags")).to eq(["LDAP_ERROR"])
-      expect(subject.get("ldap")["error"]).to eq("initialize: name or service not known")
+      expect(subject.get("ldap")["error"]).to eq("getaddrinfo: name or service not known")
     end
   end
 

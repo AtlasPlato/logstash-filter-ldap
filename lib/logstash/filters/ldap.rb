@@ -5,6 +5,8 @@ require "logstash/namespace"
 
 require 'digest/md5'
 
+require 'net/ldap'
+
 require_relative "buffer/memory_cache"
 
 
@@ -44,7 +46,6 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
 
   public
   def register
-    require 'net/ldap'
 
     # Setup some flags
 
@@ -82,7 +83,8 @@ class LogStash::Filters::Ldap < LogStash::Filters::Base
         :password => @password.value
       },
       :encryption => {
-        :method => :simple_tls
+        :method =>   :simple_tls,
+        :tls_options => { verify_mode: OpenSSL::SSL::VERIFY_NONE }
       }
     else
       @ldap = Net::LDAP.new :host => @host,
