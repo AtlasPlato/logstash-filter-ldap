@@ -7,6 +7,7 @@ require 'digest/md5'
 
 require 'net/ldap'
 
+require_relative "buffer/cache_saver"
 require_relative "buffer/memory_cache"
 
 
