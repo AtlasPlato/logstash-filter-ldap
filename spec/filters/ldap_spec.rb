@@ -91,7 +91,7 @@ describe LogStash::Filters::Ldap do
     end
 
     sample("test" => "test" ) do
-      sleep(5)
+      sleep(10)
       expect(Pathname(cache_path).exist?).to eq(true)
     end
 
